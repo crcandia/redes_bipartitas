@@ -48,6 +48,5 @@ La carpeta `dist/` contiene el sitio estático listo para subir.
 
 - Latapy, M., Magnien, C., & Del Vecchio, N. (2008). Basic notions for the analysis of large two-mode networks. *Social Networks*, 30(1), 31–48.
 - M. E. J. Newman (2001). Scientific collaboration networks. I. Network construction and fundamental results. *Physical Review E*, Valume 64, 016131.
-
 - Neal, Z. (2014). The backbone of bipartite projections. *Social Networks*, 39, 84–97.
 - Serrano, M. Á., Boguñá, M., & Vespignani, A. (2009). Extracting the multiscale backbone of complex weighted networks. *PNAS*, 106(16), 6483–6488.
