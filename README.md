@@ -1,16 +1,53 @@
-# React + Vite
+# Redes Bipartitas y sus Proyecciones
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Herramienta interactiva para enseñar redes bipartitas en el curso de **Redes y Sistemas Complejos** (Magíster en Data Science, UDD).
 
-Currently, two official plugins are available:
+**Demo:** [bipartitas.criss-lab.com](https://bipartitas.criss-lab.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## ¿Qué incluye?
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Cinco pestañas interactivas:
 
-## Expanding the ESLint configuration
+- **Concepto** — 12 tarjetas con definiciones formales, fórmulas y propiedades clave: biadjacencia, proyecciones, 4-ciclos, nestedness, redundancia y backbone extraction.
+- **Constructor** — Grafo bipartito editable. Agrega y elimina aristas con un clic y observa la matriz de biadjacencia actualizarse en tiempo real. Incluye tres ejemplos precargados (actores/películas, estudiantes/cursos, autores/papers).
+- **Álgebra matricial** — Visualización paso a paso de la multiplicación B·Bᵀ y Bᵀ·B. Muestra el producto punto celda a celda, iluminando las filas y columnas involucradas y explicando el significado de cada resultado.
+- **Proyecciones** — Grafos de fuerza D3 para P_U y P_V con pesos en las aristas y matrices de pesos.
+- **Análisis** — Métricas de red: densidad, grado medio, coeficiente de redundancia (Latapy 2008), nestedness NODF, conteo de 4-ciclos y tabla de backbone extraction con modelo nulo bipartito.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## Stack
+
+- [React](https://react.dev/) + [Vite](https://vitejs.dev/)
+- [D3.js](https://d3js.org/) — layout de fuerza para las proyecciones
+
+---
+
+## Correr localmente
+
+```bash
+npm install
+npm run dev
+```
+
+Abre `http://localhost:5173`.
+
+## Build para producción
+
+```bash
+npm run build
+```
+
+La carpeta `dist/` contiene el sitio estático listo para subir.
+
+---
+
+## Referencias
+
+- Latapy, M., Magnien, C., & Del Vecchio, N. (2008). Basic notions for the analysis of large two-mode networks. *Social Networks*, 30(1), 31–48.
+- M. E. J. Newman (2001). Scientific collaboration networks. I. Network construction and fundamental results. *Physical Review E*, Valume 64, 016131.
+
+- Neal, Z. (2014). The backbone of bipartite projections. *Social Networks*, 39, 84–97.
+- Serrano, M. Á., Boguñá, M., & Vespignani, A. (2009). Extracting the multiscale backbone of complex weighted networks. *PNAS*, 106(16), 6483–6488.
