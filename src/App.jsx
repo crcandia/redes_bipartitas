@@ -474,7 +474,7 @@ export default function App(){
           <div style={{width:4,height:28,background:`linear-gradient(to bottom,${AU},${AV})`,borderRadius:2}}/>
           <h2 style={{margin:0,fontSize:20,fontWeight:700,letterSpacing:-.3}}>Redes bipartitas y sus proyecciones</h2>
         </div>
-        <p style={{margin:"0 0 0 14px",fontSize:13,color:GREY}}>Herramienta interactiva · Curso de Redes y Sustemas Complejos · Magíster en Data Science - IDS - UDD </p>
+        <p style={{margin:"0 0 0 14px",fontSize:13,color:GREY}}>Herramienta interactiva · Curso de Redes y Sistemas Complejos · Magíster en Data Science - IDS - UDD </p>
       </div>
 
       <div style={{display:"flex",borderBottom:`1.5px solid ${BORDER}`,marginBottom:22,overflowX:"auto",gap:0}}>
