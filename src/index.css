@@ -2,12 +2,16 @@
   --text: #6b6375;
   --text-h: #08060d;
   --bg: #fff;
+  --page-bg: #f8fafc;
   --border: #e5e4e7;
   --code-bg: #f4f3ec;
   --accent: #aa3bff;
   --accent-bg: rgba(170, 59, 255, 0.1);
   --accent-border: rgba(170, 59, 255, 0.5);
   --social-bg: rgba(244, 243, 236, 0.5);
+  --footer-bg: rgba(255, 255, 255, 0.92);
+  --footer-link: #0f172a;
+  --footer-link-hover: #0f6e56;
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
@@ -35,12 +39,16 @@
     --text: #9ca3af;
     --text-h: #f3f4f6;
     --bg: #16171d;
+    --page-bg: #0b1120;
     --border: #2e303a;
     --code-bg: #1f2028;
     --accent: #c084fc;
     --accent-bg: rgba(192, 132, 252, 0.15);
     --accent-border: rgba(192, 132, 252, 0.5);
     --social-bg: rgba(47, 48, 58, 0.5);
+    --footer-bg: rgba(22, 23, 29, 0.92);
+    --footer-link: #f8fafc;
+    --footer-link-hover: #8ee7ca;
     --shadow:
       rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
   }
@@ -52,6 +60,7 @@
 
 body {
   margin: 0;
+  background: var(--page-bg);
 }
 
 #root {
@@ -64,6 +73,54 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  background: var(--bg);
+}
+
+.app-shell {
+  min-height: 100svh;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px 24px 40px;
+  box-sizing: border-box;
+}
+
+.site-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--footer-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -10px 24px rgba(15, 23, 42, 0.08);
+}
+
+.site-footer-link {
+  color: var(--footer-link);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.site-footer-link:hover,
+.site-footer-link:focus-visible {
+  color: var(--footer-link-hover);
+}
+
+.site-footer-link:focus-visible {
+  outline: 2px solid var(--footer-link-hover);
+  outline-offset: 3px;
+  border-radius: 4px;
 }
 
 h1,
@@ -108,4 +165,14 @@ code {
   line-height: 135%;
   padding: 4px 8px;
   background: var(--code-bg);
+}
+
+@media (max-width: 1024px) {
+  .app-main {
+    padding: 24px 16px 28px;
+  }
+
+  .site-footer {
+    padding: 12px 16px;
+  }
 }

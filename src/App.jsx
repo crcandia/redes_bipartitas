@@ -137,13 +137,79 @@ function ProjectionGraph({nodes,projEdges,color,colorLight,colorStroke,height=24
 }
 
 /* ─── Matrix Multiplication Stepper ─── */
-function MatrixStepper({U,V,edges}){
+const MATRIX_GRID_CELL_SIZE=36;
+
+function abbreviateStepperLabel(name){
+  return name.length>5?`${name.slice(0,4)}…`:name;
+}
+
+function StepperMatrixGrid({matrix,rowNames,colNames,highlightRow,highlightCol,title,note,accentColor,accentLight}){
+  return(
+    <div style={{flex:1,minWidth:0}}>
+      <p style={{margin:"0 0 4px",fontSize:11,fontWeight:700,color:GREY,textTransform:"uppercase",letterSpacing:.3}}>{title}</p>
+      {note&&<p style={{margin:"0 0 6px",fontSize:10,color:"#94a3b8",fontFamily:"monospace"}}>{note}</p>}
+      <div style={{overflowX:"auto"}}>
+        <table style={{borderCollapse:"collapse",fontSize:11}}>
+          <thead><tr>
+            <th style={{width:MATRIX_GRID_CELL_SIZE}}/>
+            {colNames.map((name,j)=><th key={j} style={{width:MATRIX_GRID_CELL_SIZE,height:22,textAlign:"center",padding:"0 0 4px",
+              color:highlightCol===j?accentColor:GREY,fontWeight:highlightCol===j?700:500,fontSize:10}}>{abbreviateStepperLabel(name)}</th>)}
+          </tr></thead>
+          <tbody>{matrix.map((row,i)=>(
+            <tr key={i}>
+              <td style={{paddingRight:6,textAlign:"right",fontSize:10,color:highlightRow===i?accentColor:GREY,fontWeight:highlightRow===i?700:500}}>{abbreviateStepperLabel(rowNames[i])}</td>
+              {row.map((val,j)=>{
+                const rowHighlighted=highlightRow===i;
+                const colHighlighted=highlightCol===j;
+                const bothHighlighted=rowHighlighted&&colHighlighted;
+                return <td key={j} style={{width:MATRIX_GRID_CELL_SIZE,height:MATRIX_GRID_CELL_SIZE,textAlign:"center",border:`0.5px solid ${BORDER}`,
+                  background:bothHighlighted?accentColor:rowHighlighted||colHighlighted?accentLight:"transparent",
+                  color:bothHighlighted?"white":rowHighlighted||colHighlighted?accentColor:"#475569",
+                  fontWeight:bothHighlighted||rowHighlighted||colHighlighted?700:400,fontSize:12,transition:"background .18s,color .18s"}}>{val}</td>;
+              })}
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function StepperResultGrid({matrix,rowNames,colNames,currentRow,currentCol,currentStep,totalCols,accentColor}){
+  return(
+    <div style={{overflowX:"auto"}}>
+      <table style={{borderCollapse:"collapse",fontSize:11}}>
+        <thead><tr>
+          <th style={{width:MATRIX_GRID_CELL_SIZE}}/>
+          {colNames.map((name,j)=><th key={j} style={{width:MATRIX_GRID_CELL_SIZE,height:22,textAlign:"center",padding:"0 0 4px",
+            color:currentCol===j?accentColor:GREY,fontWeight:currentCol===j?700:500,fontSize:10}}>{abbreviateStepperLabel(name)}</th>)}
+        </tr></thead>
+        <tbody>{matrix.map((row,i)=>(
+          <tr key={i}>
+            <td style={{paddingRight:6,textAlign:"right",fontSize:10,color:currentRow===i?accentColor:GREY,fontWeight:currentRow===i?700:500}}>{abbreviateStepperLabel(rowNames[i])}</td>
+            {row.map((val,j)=>{
+              const linearIndex=i*totalCols+j;
+              const isTarget=i===currentRow&&j===currentCol;
+              const isDone=linearIndex<currentStep;
+              return <td key={j} style={{width:MATRIX_GRID_CELL_SIZE,height:MATRIX_GRID_CELL_SIZE,textAlign:"center",border:`0.5px solid ${BORDER}`,
+                background:isTarget?accentColor:isDone?"#f1f5f9":"transparent",
+                color:isTarget?"white":isDone?accentColor:"#94a3b8",
+                fontWeight:isTarget?800:isDone?600:400,
+                fontSize:isTarget?13:12,transition:"background .18s,color .18s"}}>{val||0}</td>;
+            })}
+          </tr>
+        ))}</tbody>
+      </table>
+    </div>
+  );
+}
+
+function MatrixStepperPanel({U,V,edges,mode,setMode}){
   const B=useMemo(()=>buildB(U,V,edges),[U,V,edges]);
   const Bt=useMemo(()=>transpose(B),[B]);
   const PU=useMemo(()=>matMul(B,Bt),[B,Bt]);
   const PV=useMemo(()=>matMul(Bt,B),[B,Bt]);
 
-  const [mode,setMode]=useState("U");
   const [step,setStep]=useState(0);
 
   const isU=mode==="U";
@@ -162,67 +228,6 @@ function MatrixStepper({U,V,edges}){
   const dotProd=innerNames.map((_,k)=>Left[ci][k]*Right[k][cj]);
   const result=dotProd.reduce((a,b)=>a+b,0);
 
-  useEffect(()=>setStep(0),[mode,U,V,edges]);
-
-  const ab=n=>n.length>5?n.slice(0,4)+"…":n;
-  const CS=36;
-
-  const MatGrid=({M,rowN,colN,hiRow,hiCol,title,note})=>(
-    <div style={{flex:1,minWidth:0}}>
-      <p style={{margin:"0 0 4px",fontSize:11,fontWeight:700,color:GREY,textTransform:"uppercase",letterSpacing:.3}}>{title}</p>
-      {note&&<p style={{margin:"0 0 6px",fontSize:10,color:"#94a3b8",fontFamily:"monospace"}}>{note}</p>}
-      <div style={{overflowX:"auto"}}>
-        <table style={{borderCollapse:"collapse",fontSize:11}}>
-          <thead><tr>
-            <th style={{width:CS}}/>
-            {colN.map((n,j)=><th key={j} style={{width:CS,height:22,textAlign:"center",padding:"0 0 4px",
-              color:hiCol===j?color:GREY,fontWeight:hiCol===j?700:500,fontSize:10}}>{ab(n)}</th>)}
-          </tr></thead>
-          <tbody>{M.map((row,i)=>(
-            <tr key={i}>
-              <td style={{paddingRight:6,textAlign:"right",fontSize:10,color:hiRow===i?color:GREY,fontWeight:hiRow===i?700:500}}>{ab(rowN[i])}</td>
-              {row.map((val,j)=>{
-                const rH=hiRow===i,cH=hiCol===j,both=rH&&cH;
-                return <td key={j} style={{width:CS,height:CS,textAlign:"center",border:`0.5px solid ${BORDER}`,
-                  background:both?color:rH||cH?colorL:"transparent",
-                  color:both?"white":rH||cH?color:"#475569",
-                  fontWeight:both||rH||cH?700:400,fontSize:12,transition:"background .18s,color .18s"}}>{val}</td>;
-              })}
-            </tr>
-          ))}</tbody>
-        </table>
-      </div>
-    </div>
-  );
-
-  /* result grid — fills in progressively */
-  const ResultGrid=({M,rowN,colN})=>(
-    <div style={{overflowX:"auto"}}>
-      <table style={{borderCollapse:"collapse",fontSize:11}}>
-        <thead><tr>
-          <th style={{width:CS}}/>
-          {colN.map((n,j)=><th key={j} style={{width:CS,height:22,textAlign:"center",padding:"0 0 4px",
-            color:cj===j?color:GREY,fontWeight:cj===j?700:500,fontSize:10}}>{ab(n)}</th>)}
-        </tr></thead>
-        <tbody>{M.map((row,i)=>(
-          <tr key={i}>
-            <td style={{paddingRight:6,textAlign:"right",fontSize:10,color:ci===i?color:GREY,fontWeight:ci===i?700:500}}>{ab(rowN[i])}</td>
-            {row.map((val,j)=>{
-              const linearIdx=i*colNames.length+j;
-              const isTarget=i===ci&&j===cj;
-              const isDone=linearIdx<step;
-              return <td key={j} style={{width:CS,height:CS,textAlign:"center",border:`0.5px solid ${BORDER}`,
-                background:isTarget?color:isDone?"#f1f5f9":"transparent",
-                color:isTarget?"white":isDone?color:"#94a3b8",
-                fontWeight:isTarget?800:isDone?600:400,
-                fontSize:isTarget?13:12,transition:"background .18s,color .18s"}}>{val||0}</td>;
-            })}
-          </tr>
-        ))}</tbody>
-      </table>
-    </div>
-  );
-
   return(
     <div>
       {/* mode buttons */}
@@ -237,31 +242,58 @@ function MatrixStepper({U,V,edges}){
       {/* active cell banner */}
       <div style={{padding:"10px 14px",background:colorL,borderLeft:`3.5px solid ${colorS}`,borderRadius:8,marginBottom:16}}>
         <p style={{margin:"0 0 4px",fontSize:12,fontWeight:700,color:colorS}}>
-          Celda [{ab(rowNames[ci])}, {ab(colNames[cj])}] &nbsp;·&nbsp; paso {step+1} de {totalSteps}
+          Celda [{abbreviateStepperLabel(rowNames[ci])}, {abbreviateStepperLabel(colNames[cj])}] &nbsp;·&nbsp; paso {step+1} de {totalSteps}
         </p>
         <p style={{margin:0,fontSize:12,color:colorS,fontFamily:"monospace",lineHeight:2}}>
           {dotProd.map((v,k)=>`${Left[ci][k]}×${Right[k][cj]}`).join(" + ")} = <strong>{result}</strong>
         </p>
         {ci===cj
-          ?<p style={{margin:"4px 0 0",fontSize:11,color:colorS,opacity:.8}}>ℹ️ Diagonal: grado de {ab(rowNames[ci])} = {result}</p>
+          ?<p style={{margin:"4px 0 0",fontSize:11,color:colorS,opacity:.8}}>ℹ️ Diagonal: grado de {abbreviateStepperLabel(rowNames[ci])} = {result}</p>
           :result>0
-            ?<p style={{margin:"4px 0 0",fontSize:11,color:colorS,opacity:.8}}>✓ {ab(rowNames[ci])} y {ab(colNames[cj])} comparten <strong>{result}</strong> vecino(s) → arista en proyección</p>
+            ?<p style={{margin:"4px 0 0",fontSize:11,color:colorS,opacity:.8}}>✓ {abbreviateStepperLabel(rowNames[ci])} y {abbreviateStepperLabel(colNames[cj])} comparten <strong>{result}</strong> vecino(s) → arista en proyección</p>
             :<p style={{margin:"4px 0 0",fontSize:11,color:colorS,opacity:.8}}>✗ Sin vecinos en común → no aparecen conectados en la proyección</p>
         }
       </div>
 
       {/* three matrices in a row */}
       <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:16,overflowX:"auto"}}>
-        <MatGrid M={Left} rowN={rowNames} colN={innerNames} hiRow={ci} hiCol={-1}
-          title={isU?"B":"Bᵀ"} note={isU?"fila i →":"fila i →"}/>
+        <StepperMatrixGrid
+          matrix={Left}
+          rowNames={rowNames}
+          colNames={innerNames}
+          highlightRow={ci}
+          highlightCol={-1}
+          title={isU?"B":"Bᵀ"}
+          note="fila i →"
+          accentColor={color}
+          accentLight={colorL}
+        />
         <div style={{display:"flex",alignItems:"center",paddingTop:50,flexShrink:0,fontSize:22,color:GREY,opacity:.5}}>·</div>
-        <MatGrid M={Right} rowN={innerNames} colN={colNames} hiRow={-1} hiCol={cj}
-          title={isU?"Bᵀ":"B"} note={isU?"← col j":"← col j"}/>
+        <StepperMatrixGrid
+          matrix={Right}
+          rowNames={innerNames}
+          colNames={colNames}
+          highlightRow={-1}
+          highlightCol={cj}
+          title={isU?"Bᵀ":"B"}
+          note="← col j"
+          accentColor={color}
+          accentLight={colorL}
+        />
         <div style={{display:"flex",alignItems:"center",paddingTop:50,flexShrink:0,fontSize:22,color:GREY,opacity:.5}}>=</div>
         <div style={{flex:1,minWidth:0}}>
           <p style={{margin:"0 0 4px",fontSize:11,fontWeight:700,color:colorS,textTransform:"uppercase",letterSpacing:.3}}>{isU?"P_U = B·Bᵀ":"P_V = Bᵀ·B"}</p>
           <p style={{margin:"0 0 6px",fontSize:10,color:"#94a3b8",fontFamily:"monospace"}}>resultado parcial</p>
-          <ResultGrid M={P} rowN={rowNames} colN={colNames}/>
+          <StepperResultGrid
+            matrix={P}
+            rowNames={rowNames}
+            colNames={colNames}
+            currentRow={ci}
+            currentCol={cj}
+            currentStep={step}
+            totalCols={colNames.length}
+            accentColor={color}
+          />
         </div>
       </div>
 
@@ -319,6 +351,16 @@ function MatrixStepper({U,V,edges}){
       </div>
     </div>
   );
+}
+
+function MatrixStepper({U,V,edges}){
+  const [mode,setMode]=useState("U");
+  const resetKey=useMemo(
+    ()=>`${mode}|${U.join("::")}|${V.join("::")}|${edges.map(([u,v])=>`${u}-${v}`).join(",")}`,
+    [mode,U,V,edges]
+  );
+
+  return <MatrixStepperPanel key={resetKey} U={U} V={V} edges={edges} mode={mode} setMode={setMode}/>;
 }
 
 const navBtn=(disabled)=>({padding:"7px 12px",fontSize:12,borderRadius:7,border:`0.5px solid ${BORDER}`,background:"transparent",cursor:disabled?"not-allowed":"pointer",opacity:disabled?.4:1});
@@ -468,210 +510,226 @@ export default function App(){
   const TABS=[["concepto","Concepto"],["constructor","Constructor"],["algebra","Álgebra matricial"],["proyecciones","Proyecciones"],["analisis","Análisis"]];
 
   return(
-    <div style={{fontFamily:"system-ui,sans-serif",maxWidth:840,margin:"0 auto",padding:"0 0 36px",color:"#1e293b"}}>
-      <div style={{marginBottom:18}}>
-        <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:3}}>
-          <div style={{width:4,height:28,background:`linear-gradient(to bottom,${AU},${AV})`,borderRadius:2}}/>
-          <h2 style={{margin:0,fontSize:20,fontWeight:700,letterSpacing:-.3}}>Redes bipartitas y sus proyecciones</h2>
-        </div>
-        <p style={{margin:"0 0 0 14px",fontSize:13,color:GREY}}>Herramienta interactiva · Curso de Redes y Sistemas Complejos · Magíster en Data Science - IDS - UDD </p>
-      </div>
+    <div className="app-shell">
+      <main className="app-main">
+        <div style={{fontFamily:"system-ui,sans-serif",maxWidth:840,margin:"0 auto",color:"#1e293b"}}>
+          <header style={{marginBottom:18}}>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:3}}>
+              <div style={{width:4,height:28,background:`linear-gradient(to bottom,${AU},${AV})`,borderRadius:2}}/>
+              <h1 style={{margin:0,fontSize:20,fontWeight:700,letterSpacing:-.3}}>Redes bipartitas y sus proyecciones</h1>
+            </div>
+            <p style={{margin:"0 0 0 14px",fontSize:13,color:GREY}}>Herramienta interactiva · Curso de Redes y Sistemas Complejos · Magíster en Data Science - IDS - UDD </p>
+          </header>
 
-      <div style={{display:"flex",borderBottom:`1.5px solid ${BORDER}`,marginBottom:22,overflowX:"auto",gap:0}}>
-        {TABS.map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{
-            padding:"9px 14px",fontSize:13,fontWeight:tab===id?700:400,color:tab===id?"#1e293b":GREY,
-            background:"transparent",border:"none",borderBottom:tab===id?"2.5px solid #1e293b":"2.5px solid transparent",
-            cursor:"pointer",marginBottom:-1.5,transition:"color .15s",whiteSpace:"nowrap"}}>{label}</button>
-        ))}
-      </div>
+          <div style={{display:"flex",borderBottom:`1.5px solid ${BORDER}`,marginBottom:22,overflowX:"auto",gap:0}}>
+            {TABS.map(([id,label])=>(
+              <button key={id} onClick={()=>setTab(id)} style={{
+                padding:"9px 14px",fontSize:13,fontWeight:tab===id?700:400,color:tab===id?"#1e293b":GREY,
+                background:"transparent",border:"none",borderBottom:tab===id?"2.5px solid #1e293b":"2.5px solid transparent",
+                cursor:"pointer",marginBottom:-1.5,transition:"color .15s",whiteSpace:"nowrap"}}>{label}</button>
+            ))}
+          </div>
 
-      {/* CONCEPTO */}
-      {tab==="concepto"&&(
-        <div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:12}}>
-            {THEORY.map((c,i)=>(
-              <div key={i} style={{background:"#fff",border:`0.5px solid ${BORDER}`,borderRadius:12,padding:"14px 16px",borderTop:`3px solid ${c.top}`}}>
-                <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:"#1e293b"}}>{c.title}</p>
-                <p style={{margin:"0 0 10px",fontSize:12,lineHeight:1.65,color:"#475569"}}>{c.body}</p>
-                <div style={{background:"#f1f5f9",borderRadius:6,padding:"5px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
+          {/* CONCEPTO */}
+          {tab==="concepto"&&(
+            <div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:12}}>
+                {THEORY.map((c,i)=>(
+                  <div key={i} style={{background:"#fff",border:`0.5px solid ${BORDER}`,borderRadius:12,padding:"14px 16px",borderTop:`3px solid ${c.top}`}}>
+                    <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:"#1e293b"}}>{c.title}</p>
+                    <p style={{margin:"0 0 10px",fontSize:12,lineHeight:1.65,color:"#475569"}}>{c.body}</p>
+                    <div style={{background:"#f1f5f9",borderRadius:6,padding:"5px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-          <div style={{marginTop:14,display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-            <div style={{padding:"13px 16px",background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10}}>
-              <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#92400e"}}>💡 Álgebra clave</p>
-              <p style={{margin:0,fontSize:12,color:"#78350f",lineHeight:1.7}}>
-                <strong>B·Bᵀ</strong> = pesos P_U, &nbsp;<strong>Bᵀ·B</strong> = pesos P_V. La diagonal = grado del nodo. Ve a <em>Álgebra matricial</em> para verlo paso a paso.
-              </p>
+              <div style={{marginTop:14,display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+                <div style={{padding:"13px 16px",background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10}}>
+                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#92400e"}}>💡 Álgebra clave</p>
+                  <p style={{margin:0,fontSize:12,color:"#78350f",lineHeight:1.7}}>
+                    <strong>B·Bᵀ</strong> = pesos P_U, &nbsp;<strong>Bᵀ·B</strong> = pesos P_V. La diagonal = grado del nodo. Ve a <em>Álgebra matricial</em> para verlo paso a paso.
+                  </p>
+                </div>
+                <div style={{padding:"13px 16px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:10}}>
+                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Backbone obligatorio</p>
+                  <p style={{margin:0,fontSize:12,color:"#166534",lineHeight:1.7}}>
+                    Las proyecciones ponderadas están sesgadas por el grado. <strong>Siempre compara pesos con el modelo nulo</strong> antes de interpretar co-ocurrencias como significativas.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div style={{padding:"13px 16px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:10}}>
-              <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Backbone obligatorio</p>
-              <p style={{margin:0,fontSize:12,color:"#166534",lineHeight:1.7}}>
-                Las proyecciones ponderadas están sesgadas por el grado. <strong>Siempre compara pesos con el modelo nulo</strong> antes de interpretar co-ocurrencias como significativas.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* CONSTRUCTOR */}
-      {tab==="constructor"&&(
-        <div>
-          <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
-            {Object.entries(PRESETS).map(([k,p])=>(
-              <button key={k} onClick={()=>loadPreset(k)} style={{padding:"6px 14px",fontSize:12.5,borderRadius:8,cursor:"pointer",
-                border:pKey===k?"2px solid #334155":`1px solid ${BORDER}`,background:pKey===k?"#1e293b":"transparent",
-                color:pKey===k?"white":"#475569",fontWeight:pKey===k?600:400,transition:"all .15s"}}>{p.name}</button>
-            ))}
-          </div>
-          <div style={{padding:"8px 12px",background:LIGHTGREY,borderRadius:8,marginBottom:16,fontSize:12,color:GREY,border:`0.5px solid ${BORDER}`}}>
-            <span style={{color:AUS,fontWeight:700}}>1.</span> Clic en <span style={{color:AUS,fontWeight:600}}>{data.uLabel}</span> para seleccionar. &ensp;
-            <span style={{color:AVS,fontWeight:700}}>2.</span> Clic en <span style={{color:AVS,fontWeight:600}}>{data.vLabel}</span> para agregar/quitar arista. &ensp;
-            <span style={{fontWeight:700}}>3.</span> Clic en arista existente para eliminar.
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:24,alignItems:"start"}}>
-            <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
-              selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
-            <div style={{minWidth:200}}>
-              <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>Biadjacencia B</p>
-              <BiadjMatrix U={data.U} V={data.V} edges={edges}/>
-              <div style={{marginTop:14,display:"grid",gap:5}}>
-                {[["Nodos U",data.U.length],["Nodos V",data.V.length],["Aristas |E|",edges.length],["Densidad ρ",density.toFixed(3)],["k̄ U",avgKU],["k̄ V",avgKV]].map(([lb,val])=>(
-                  <div key={lb} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"4px 0",borderBottom:`0.5px solid ${BORDER}`}}>
-                    <span style={{color:GREY}}>{lb}</span><span style={{fontWeight:700,fontFamily:"monospace"}}>{val}</span>
+          {/* CONSTRUCTOR */}
+          {tab==="constructor"&&(
+            <div>
+              <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
+                {Object.entries(PRESETS).map(([k,p])=>(
+                  <button key={k} onClick={()=>loadPreset(k)} style={{padding:"6px 14px",fontSize:12.5,borderRadius:8,cursor:"pointer",
+                    border:pKey===k?"2px solid #334155":`1px solid ${BORDER}`,background:pKey===k?"#1e293b":"transparent",
+                    color:pKey===k?"white":"#475569",fontWeight:pKey===k?600:400,transition:"all .15s"}}>{p.name}</button>
+                ))}
+              </div>
+              <div style={{padding:"8px 12px",background:LIGHTGREY,borderRadius:8,marginBottom:16,fontSize:12,color:GREY,border:`0.5px solid ${BORDER}`}}>
+                <span style={{color:AUS,fontWeight:700}}>1.</span> Clic en <span style={{color:AUS,fontWeight:600}}>{data.uLabel}</span> para seleccionar. &ensp;
+                <span style={{color:AVS,fontWeight:700}}>2.</span> Clic en <span style={{color:AVS,fontWeight:600}}>{data.vLabel}</span> para agregar/quitar arista. &ensp;
+                <span style={{fontWeight:700}}>3.</span> Clic en arista existente para eliminar.
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:24,alignItems:"start"}}>
+                <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
+                  selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
+                <div style={{minWidth:200}}>
+                  <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>Biadjacencia B</p>
+                  <BiadjMatrix U={data.U} V={data.V} edges={edges}/>
+                  <div style={{marginTop:14,display:"grid",gap:5}}>
+                    {[["Nodos U",data.U.length],["Nodos V",data.V.length],["Aristas |E|",edges.length],["Densidad ρ",density.toFixed(3)],["k̄ U",avgKU],["k̄ V",avgKV]].map(([lb,val])=>(
+                      <div key={lb} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"4px 0",borderBottom:`0.5px solid ${BORDER}`}}>
+                        <span style={{color:GREY}}>{lb}</span><span style={{fontWeight:700,fontFamily:"monospace"}}>{val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ÁLGEBRA MATRICIAL */}
+          {tab==="algebra"&&(
+            <div>
+              <div style={{padding:"10px 14px",background:APL,borderLeft:`3.5px solid ${APS}`,borderRadius:8,marginBottom:18}}>
+                <p style={{margin:"0 0 4px",fontSize:13,fontWeight:700,color:APS}}>De la biadjacencia a la proyección ponderada — paso a paso</p>
+                <p style={{margin:0,fontSize:12,color:APS,lineHeight:1.7}}>
+                  Cada celda (i,j) de B·Bᵀ es el <strong>producto punto</strong> de las filas i y j de B.
+                  Navega celda a celda y observa qué operación la genera. Presta atención a la diagonal y a las celdas con resultado 0.
+                  Cambia la red en <em>Constructor</em> y regresa para ver cómo varía.
+                </p>
+              </div>
+              <MatrixStepper U={data.U} V={data.V} edges={edges}/>
+            </div>
+          )}
+
+          {/* PROYECCIONES */}
+          {tab==="proyecciones"&&(
+            <div>
+              <p style={{margin:"0 0 14px",fontSize:13,color:"#475569",lineHeight:1.65,padding:"10px 14px",background:LIGHTGREY,borderRadius:8,border:`0.5px solid ${BORDER}`}}>
+                Nodos del mismo conjunto se conectan si comparten al menos un vecino. El grosor de arista es proporcional al peso compartido.
+              </p>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+                {[{label:`P_U — ${data.uLabel}`,nodes:data.U,pe:uEdges,c:AU,cl:AUL,cs:AUS},
+                  {label:`P_V — ${data.vLabel}`,nodes:data.V,pe:vEdges,c:AV,cl:AVL,cs:AVS}].map(({label,nodes,pe,c,cl,cs})=>(
+                  <div key={label}>
+                    <div style={{padding:"8px 12px",marginBottom:10,background:cl,borderRadius:8,borderLeft:`3.5px solid ${cs}`}}>
+                      <p style={{margin:0,fontSize:13,fontWeight:700,color:cs}}>{label}</p>
+                      <p style={{margin:"3px 0 0",fontSize:11,color:cs}}>{pe.length} aristas · {nodes.length} nodos</p>
+                    </div>
+                    <div style={{background:LIGHTGREY,borderRadius:10,padding:8}}>
+                      <ProjectionGraph nodes={nodes} projEdges={pe} color={c} colorLight={cl} colorStroke={cs} height={220}/>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginTop:20}}>
+                {[{label:"Matriz P_U (B·Bᵀ)",nodes:data.U,pe:uEdges,cl:AUL,cs:AUS},
+                  {label:"Matriz P_V (Bᵀ·B)",nodes:data.V,pe:vEdges,cl:AVL,cs:AVS}].map(({label,nodes,pe,cl,cs})=>(
+                  <div key={label}>
+                    <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
+                    <ProjMatrix nodes={nodes} projEdges={pe} colorLight={cl} colorStroke={cs}/>
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* ÁLGEBRA MATRICIAL */}
-      {tab==="algebra"&&(
-        <div>
-          <div style={{padding:"10px 14px",background:APL,borderLeft:`3.5px solid ${APS}`,borderRadius:8,marginBottom:18}}>
-            <p style={{margin:"0 0 4px",fontSize:13,fontWeight:700,color:APS}}>De la biadjacencia a la proyección ponderada — paso a paso</p>
-            <p style={{margin:0,fontSize:12,color:APS,lineHeight:1.7}}>
-              Cada celda (i,j) de B·Bᵀ es el <strong>producto punto</strong> de las filas i y j de B.
-              Navega celda a celda y observa qué operación la genera. Presta atención a la diagonal y a las celdas con resultado 0.
-              Cambia la red en <em>Constructor</em> y regresa para ver cómo varía.
-            </p>
-          </div>
-          <MatrixStepper U={data.U} V={data.V} edges={edges}/>
-        </div>
-      )}
+          {/* ANÁLISIS */}
+          {tab==="analisis"&&(
+            <div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
+                <Stat label="|U|" value={data.U.length} sub="Nodos U"/>
+                <Stat label="|V|" value={data.V.length} sub="Nodos V"/>
+                <Stat label="|E|" value={edges.length} sub="Aristas"/>
+                <Stat label="ρ" value={density.toFixed(3)} sub="Densidad bipartita"/>
+                <Stat label="k̄_U" value={avgKU} sub="Grado medio U" color={AU}/>
+                <Stat label="k̄_V" value={avgKV} sub="Grado medio V" color={AV}/>
+                <Stat label="RC" value={rc} sub="Redundancia Latapy" color={AP}/>
+                <Stat label="NODF" value={`${nd}%`} sub="Nestedness" color={AP}/>
+                <Stat label="|E_{P_U}|" value={uEdges.length} sub="Aristas en P_U" color={AU}/>
+                <Stat label="|E_{P_V}|" value={vEdges.length} sub="Aristas en P_V" color={AV}/>
+                <Stat label="□" value={butterflies} sub="4-ciclos (mariposas)" color={AP}/>
+                <Stat label="ρ_{P_U}" value={densityPU} sub="Densidad P_U"/>
+              </div>
 
-      {/* PROYECCIONES */}
-      {tab==="proyecciones"&&(
-        <div>
-          <p style={{margin:"0 0 14px",fontSize:13,color:"#475569",lineHeight:1.65,padding:"10px 14px",background:LIGHTGREY,borderRadius:8,border:`0.5px solid ${BORDER}`}}>
-            Nodos del mismo conjunto se conectan si comparten al menos un vecino. El grosor de arista es proporcional al peso compartido.
-          </p>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
-            {[{label:`P_U — ${data.uLabel}`,nodes:data.U,pe:uEdges,c:AU,cl:AUL,cs:AUS},
-              {label:`P_V — ${data.vLabel}`,nodes:data.V,pe:vEdges,c:AV,cl:AVL,cs:AVS}].map(({label,nodes,pe,c,cl,cs})=>(
-              <div key={label}>
-                <div style={{padding:"8px 12px",marginBottom:10,background:cl,borderRadius:8,borderLeft:`3.5px solid ${cs}`}}>
-                  <p style={{margin:0,fontSize:13,fontWeight:700,color:cs}}>{label}</p>
-                  <p style={{margin:"3px 0 0",fontSize:11,color:cs}}>{pe.length} aristas · {nodes.length} nodos</p>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+                <DegBar nodes={data.U} degs={uDegs} color={AU} label={`Distribución de grado — ${data.uLabel}`}/>
+                <DegBar nodes={data.V} degs={vDegs} color={AV} label={`Distribución de grado — ${data.vLabel}`}/>
+              </div>
+
+              {/* backbone */}
+              <div style={{marginBottom:20}}>
+                <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
+                  <div style={{width:3,height:16,background:AU,borderRadius:2}}/>
+                  <p style={{margin:0,fontSize:13,fontWeight:700}}>Backbone extraction — Proyección P_U</p>
                 </div>
-                <div style={{background:LIGHTGREY,borderRadius:10,padding:8}}>
-                  <ProjectionGraph nodes={nodes} projEdges={pe} color={c} colorLight={cl} colorStroke={cs} height={220}/>
+                <p style={{margin:"0 0 10px",fontSize:12,color:GREY,lineHeight:1.6}}>
+                  Comparación de cada arista de P_U contra el modelo nulo bipartito. Aristas con ratio bajo son candidatas a eliminarse.
+                </p>
+                {uEdges.length>0
+                  ?<BackboneTable U={data.U} edges={edges} uEdges={uEdges}/>
+                  :<p style={{color:"#94a3b8",fontSize:13}}>Sin aristas en P_U con la configuración actual.</p>}
+              </div>
+
+              {/* nestedness bar */}
+              <div style={{padding:"13px 16px",background:APL,borderRadius:10,border:`0.5px solid ${APS}`,marginBottom:16}}>
+                <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:APS}}>Nestedness NODF: {nd}%</p>
+                <p style={{margin:"0 0 10px",fontSize:12,color:APS,lineHeight:1.65}}>
+                  100% = perfectamente anidado (toda fila de menor grado es subconjunto de la de mayor grado). 0% = estructura en bloques perfecta.
+                </p>
+                <div style={{display:"flex",alignItems:"center",gap:8}}>
+                  <span style={{fontSize:11,color:APS,minWidth:68}}>0% bloques</span>
+                  <div style={{flex:1,height:10,background:"#ddd6fe",borderRadius:5,overflow:"hidden"}}>
+                    <div style={{height:"100%",width:`${nd}%`,background:AP,borderRadius:5,transition:"width .4s"}}/>
+                  </div>
+                  <span style={{fontSize:11,color:APS,minWidth:76,textAlign:"right"}}>100% anidado</span>
                 </div>
               </div>
-            ))}
-          </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginTop:20}}>
-            {[{label:"Matriz P_U (B·Bᵀ)",nodes:data.U,pe:uEdges,cl:AUL,cs:AUS},
-              {label:"Matriz P_V (Bᵀ·B)",nodes:data.V,pe:vEdges,cl:AVL,cs:AVS}].map(({label,nodes,pe,cl,cs})=>(
-              <div key={label}>
-                <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
-                <ProjMatrix nodes={nodes} projEdges={pe} colorLight={cl} colorStroke={cs}/>
+
+              {/* degree tables */}
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+                {[{label:data.uLabel,nodes:data.U,degs:uDegs,cs:AUS,cl:AUL},
+                  {label:data.vLabel,nodes:data.V,degs:vDegs,cs:AVS,cl:AVL}].map(({label,nodes,degs,cs,cl})=>(
+                  <div key={label}>
+                    <p style={{margin:"0 0 8px",fontSize:12,fontWeight:700,color:GREY}}>{label} — grado nodal</p>
+                    <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+                      <thead><tr>{["Nodo","k",""].map(h=><th key={h} style={{padding:"6px 10px",textAlign:"left",color:"#94a3b8",fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>)}</tr></thead>
+                      <tbody>{nodes.map((name,i)=>(
+                        <tr key={i}>
+                          <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>{name}</td>
+                          <td style={{padding:"5px 10px",textAlign:"center",borderBottom:"0.5px solid #f1f5f9"}}>
+                            <span style={{background:cl,color:cs,fontWeight:700,fontSize:11,padding:"2px 9px",borderRadius:5}}>{degs[i]}</span>
+                          </td>
+                          <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>
+                            <div style={{height:8,width:`${(degs[i]/Math.max(...degs,1))*100}%`,background:cs,borderRadius:4,opacity:.8,minWidth:4}}/>
+                          </td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ANÁLISIS */}
-      {tab==="analisis"&&(
-        <div>
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
-            <Stat label="|U|" value={data.U.length} sub="Nodos U"/>
-            <Stat label="|V|" value={data.V.length} sub="Nodos V"/>
-            <Stat label="|E|" value={edges.length} sub="Aristas"/>
-            <Stat label="ρ" value={density.toFixed(3)} sub="Densidad bipartita"/>
-            <Stat label="k̄_U" value={avgKU} sub="Grado medio U" color={AU}/>
-            <Stat label="k̄_V" value={avgKV} sub="Grado medio V" color={AV}/>
-            <Stat label="RC" value={rc} sub="Redundancia Latapy" color={AP}/>
-            <Stat label="NODF" value={`${nd}%`} sub="Nestedness" color={AP}/>
-            <Stat label="|E_{P_U}|" value={uEdges.length} sub="Aristas en P_U" color={AU}/>
-            <Stat label="|E_{P_V}|" value={vEdges.length} sub="Aristas en P_V" color={AV}/>
-            <Stat label="□" value={butterflies} sub="4-ciclos (mariposas)" color={AP}/>
-            <Stat label="ρ_{P_U}" value={densityPU} sub="Densidad P_U"/>
-          </div>
-
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
-            <DegBar nodes={data.U} degs={uDegs} color={AU} label={`Distribución de grado — ${data.uLabel}`}/>
-            <DegBar nodes={data.V} degs={vDegs} color={AV} label={`Distribución de grado — ${data.vLabel}`}/>
-          </div>
-
-          {/* backbone */}
-          <div style={{marginBottom:20}}>
-            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
-              <div style={{width:3,height:16,background:AU,borderRadius:2}}/>
-              <p style={{margin:0,fontSize:13,fontWeight:700}}>Backbone extraction — Proyección P_U</p>
             </div>
-            <p style={{margin:"0 0 10px",fontSize:12,color:GREY,lineHeight:1.6}}>
-              Comparación de cada arista de P_U contra el modelo nulo bipartito. Aristas con ratio bajo son candidatas a eliminarse.
-            </p>
-            {uEdges.length>0
-              ?<BackboneTable U={data.U} edges={edges} uEdges={uEdges}/>
-              :<p style={{color:"#94a3b8",fontSize:13}}>Sin aristas en P_U con la configuración actual.</p>}
-          </div>
-
-          {/* nestedness bar */}
-          <div style={{padding:"13px 16px",background:APL,borderRadius:10,border:`0.5px solid ${APS}`,marginBottom:16}}>
-            <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:APS}}>Nestedness NODF: {nd}%</p>
-            <p style={{margin:"0 0 10px",fontSize:12,color:APS,lineHeight:1.65}}>
-              100% = perfectamente anidado (toda fila de menor grado es subconjunto de la de mayor grado). 0% = estructura en bloques perfecta.
-            </p>
-            <div style={{display:"flex",alignItems:"center",gap:8}}>
-              <span style={{fontSize:11,color:APS,minWidth:68}}>0% bloques</span>
-              <div style={{flex:1,height:10,background:"#ddd6fe",borderRadius:5,overflow:"hidden"}}>
-                <div style={{height:"100%",width:`${nd}%`,background:AP,borderRadius:5,transition:"width .4s"}}/>
-              </div>
-              <span style={{fontSize:11,color:APS,minWidth:76,textAlign:"right"}}>100% anidado</span>
-            </div>
-          </div>
-
-          {/* degree tables */}
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
-            {[{label:data.uLabel,nodes:data.U,degs:uDegs,cs:AUS,cl:AUL},
-              {label:data.vLabel,nodes:data.V,degs:vDegs,cs:AVS,cl:AVL}].map(({label,nodes,degs,cs,cl})=>(
-              <div key={label}>
-                <p style={{margin:"0 0 8px",fontSize:12,fontWeight:700,color:GREY}}>{label} — grado nodal</p>
-                <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                  <thead><tr>{["Nodo","k",""].map(h=><th key={h} style={{padding:"6px 10px",textAlign:"left",color:"#94a3b8",fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>)}</tr></thead>
-                  <tbody>{nodes.map((name,i)=>(
-                    <tr key={i}>
-                      <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>{name}</td>
-                      <td style={{padding:"5px 10px",textAlign:"center",borderBottom:"0.5px solid #f1f5f9"}}>
-                        <span style={{background:cl,color:cs,fontWeight:700,fontSize:11,padding:"2px 9px",borderRadius:5}}>{degs[i]}</span>
-                      </td>
-                      <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>
-                        <div style={{height:8,width:`${(degs[i]/Math.max(...degs,1))*100}%`,background:cs,borderRadius:4,opacity:.8,minWidth:4}}/>
-                      </td>
-                    </tr>
-                  ))}</tbody>
-                </table>
-              </div>
-            ))}
-          </div>
+          )}
         </div>
-      )}
+      </main>
+
+      <footer className="site-footer">
+        <a
+          className="site-footer-link"
+          href="https://criss-lab.com/author/cristian-candia/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir el perfil de Cristian Candia en una nueva pestaña"
+        >
+          by Cristian Candia, Ph.D.
+        </a>
+      </footer>
     </div>
   );
 }
