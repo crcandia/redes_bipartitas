@@ -6,8 +6,8 @@ const AU="#B26A1D",AUL="#F5E3C7",AUS="#7A4B13";
 const AV="#2F6B5E",AVL="#DCEEE7",AVS="#1F5147";
 const AP="#6C5BA7",APL="#ECE8FA",APS="#4B3B84";
 const GREY="#5F5A52",LIGHTGREY="#F4F1EC",BORDER="#E0DDD6";
-const PANEL="#FCFBF8",PANEL_ALT="#FFFDF9",PANEL_BORDER="#E8E2D8";
-const PANEL_SHADOW="0 10px 24px rgba(44,38,31,0.05)";
+const PANEL="#FFFFFF",PANEL_ALT="#FFFFFF",PANEL_BORDER="#E0DDD6";
+const PANEL_SHADOW="0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)";
 
 const PRESETS={
   actores:{name:"🎬 Actores & Películas",uLabel:"Actores",vLabel:"Películas",
@@ -630,21 +630,22 @@ export default function App(){
           {" "}en{" "}
           <a href="https://criss-lab.com/" target="_blank" rel="noopener noreferrer">CRiSS Lab</a>.
         </p>
-        <div className="editorial-tabs editorial-tabs-top">
-          {TABS.map(([id,label])=>(
-            <button
-              key={id}
-              className={`editorial-tab${tab===id?" active":""}`}
-              onClick={()=>setTab(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
       </header>
 
       <main className="app-main">
         <div className="editorial-shell">
+          <div className="editorial-tabs">
+            {TABS.map(([id,label])=>(
+              <button
+                key={id}
+                className={`editorial-tab${tab===id?" active":""}`}
+                onClick={()=>setTab(id)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           {/* CONCEPTO */}
           {tab==="concepto"&&(
             <section className="editorial-panel editorial-stack concept-story">
