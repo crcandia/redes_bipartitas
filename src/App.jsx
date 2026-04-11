@@ -625,27 +625,26 @@ export default function App(){
           Recurso interactivo del curso Redes y Sistemas Complejos dedicado a redes bipartitas, matrices de biadjacencia, proyecciones, backbone extraction y nestedness. Combina intuición algebraica, edición directa de grafos y análisis visual para explorar cómo se conserva y se pierde información al proyectar.
         </p>
         <p className="editorial-meta">
-          Recurso desarrollado por
+          Recurso desarrollado por{" "}
           <a href="https://www.crcandia.com/" target="_blank" rel="noopener noreferrer">Cristian Candia</a>
-          en
+          {" "}en{" "}
           <a href="https://criss-lab.com/" target="_blank" rel="noopener noreferrer">CRiSS Lab</a>.
         </p>
+        <div className="editorial-tabs editorial-tabs-top">
+          {TABS.map(([id,label])=>(
+            <button
+              key={id}
+              className={`editorial-tab${tab===id?" active":""}`}
+              onClick={()=>setTab(id)}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </header>
 
       <main className="app-main">
         <div className="editorial-shell">
-          <div className="editorial-tabs">
-            {TABS.map(([id,label])=>(
-              <button
-                key={id}
-                className={`editorial-tab${tab===id?" active":""}`}
-                onClick={()=>setTab(id)}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
           {/* CONCEPTO */}
           {tab==="concepto"&&(
             <section className="editorial-panel editorial-stack concept-story">
@@ -657,30 +656,36 @@ export default function App(){
 
               {CONCEPT_SECTIONS.map((section)=>(
                 <article key={section.title} className="concept-block">
-                  <div className="concept-kicker">{section.kicker}</div>
-                  <h3>{section.title}</h3>
-                  <div className="concept-body">
-                    {section.paragraphs.map((paragraph)=>(
-                      <p key={paragraph}>{paragraph}</p>
-                    ))}
+                  <div className="concept-main">
+                    <div className="concept-kicker">{section.kicker}</div>
+                    <h3>{section.title}</h3>
+                    <div className="concept-body">
+                      {section.paragraphs.map((paragraph)=>(
+                        <p key={paragraph}>{paragraph}</p>
+                      ))}
+                    </div>
                   </div>
-                  <div className="concept-formula">
-                    <code>{section.formula}</code>
-                  </div>
-                  <div className="concept-ref-list">
-                    {section.references.map((key)=>(
-                      <ConceptReferenceCard key={`${section.title}-${key}`} reference={REFERENCES[key]}/>
-                    ))}
-                  </div>
+                  <aside className="concept-side">
+                    <div className="concept-formula">
+                      <code>{section.formula}</code>
+                    </div>
+                    <div className="concept-ref-list">
+                      {section.references.map((key)=>(
+                        <ConceptReferenceCard key={`${section.title}-${key}`} reference={REFERENCES[key]}/>
+                      ))}
+                    </div>
+                  </aside>
                 </article>
               ))}
 
               <div className="concept-reading">
-                <h3>Lecturas mínimas y descargas</h3>
-                <p>
-                  Si quieres convertir esta herramienta en una unidad más formal del curso, estas son las lecturas que mejor sostienen lo que aparece en las pestañas de álgebra, proyecciones y análisis.
-                </p>
-                <div className="concept-ref-list">
+                <div className="concept-reading-head">
+                  <h3>Lecturas mínimas y descargas</h3>
+                  <p>
+                    Si quieres convertir esta herramienta en una unidad más formal del curso, estas son las lecturas que mejor sostienen lo que aparece en las pestañas de álgebra, proyecciones y análisis.
+                  </p>
+                </div>
+                <div className="concept-reading-grid">
                   {CONCEPT_LIBRARY.map((key)=>(
                     <ConceptReferenceCard key={`library-${key}`} reference={REFERENCES[key]}/>
                   ))}
