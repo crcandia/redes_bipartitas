@@ -512,23 +512,23 @@ export default function App(){
 
   return(
     <div className="app-shell">
+      <header className="editorial-hero">
+        <div className="editorial-badge">Curso Redes y Sistemas Complejos</div>
+        <h1>Redes bipartitas y sus proyecciones</h1>
+        <p className="editorial-subtitle">De la biadjacencia a las proyecciones ponderadas</p>
+        <p className="editorial-lead">
+          Recurso interactivo del curso Redes y Sistemas Complejos dedicado a redes bipartitas, matrices de biadjacencia, proyecciones, backbone extraction y nestedness. Combina intuición algebraica, edición directa de grafos y análisis visual para explorar cómo se conserva y se pierde información al proyectar.
+        </p>
+        <p className="editorial-meta">
+          Recurso desarrollado por
+          <a href="https://www.crcandia.com/" target="_blank" rel="noopener noreferrer">Cristian Candia</a>
+          en
+          <a href="https://criss-lab.com/" target="_blank" rel="noopener noreferrer">CRiSS Lab</a>.
+        </p>
+      </header>
+
       <main className="app-main">
         <div className="editorial-shell">
-          <header className="editorial-hero">
-            <div className="editorial-badge">Curso Redes y Sistemas Complejos</div>
-            <h1>Redes bipartitas y sus proyecciones</h1>
-            <p className="editorial-subtitle">De la biadjacencia a las proyecciones ponderadas</p>
-            <p className="editorial-lead">
-              Recurso interactivo del curso Redes y Sistemas Complejos dedicado a redes bipartitas, matrices de biadjacencia, proyecciones, backbone extraction y nestedness. Combina intuición algebraica, edición directa de grafos y análisis visual para explorar cómo se conserva y se pierde información al proyectar.
-            </p>
-            <p className="editorial-meta">
-              Desarrollado por
-              <a href="https://www.crcandia.com/" target="_blank" rel="noopener noreferrer">Cristian Candia</a>
-              en
-              <a href="https://criss-lab.com/" target="_blank" rel="noopener noreferrer">CRiSS Lab</a>.
-            </p>
-          </header>
-
           <div className="editorial-tabs">
             {TABS.map(([id,label])=>(
               <button
@@ -731,6 +731,7 @@ export default function App(){
       </main>
 
       <footer className="site-footer">
+        <span>Redes y Sistemas Complejos · Redes Bipartitas · by</span>
         <a
           className="site-footer-link"
           href="https://www.crcandia.com/"
