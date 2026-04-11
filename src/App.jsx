@@ -472,21 +472,121 @@ function BackboneTable({U,edges,uEdges,otherCount}){
   );
 }
 
-/* ─── Theory cards ─── */
-const THEORY=[
-  {title:"Definición formal",f:"G=(U,V,E), E⊆U×V",body:"Dos conjuntos disjuntos de nodos. Las aristas solo cruzan entre U y V — nunca dentro del mismo conjunto.",top:AU},
-  {title:"Condición bipartita",f:"G bipartito ↔ sin ciclos de longitud impar",body:"Equivalente a 2-coloreable. El ciclo más corto posible es de longitud 4 (cuadrado), no triángulos.",top:AU},
-  {title:"Biadjacencia B",f:"B ∈ {0,1}|U|×|V|",body:"Matriz rectangular |U|×|V|, no cuadrada. Mucho más compacta que la adjyacencia para redes muy bipartitas.",top:AU},
-  {title:"Proyección P_U",f:"[B·Bᵀ]_ij = |N(i)∩N(j)|",body:"Nodos de U conectados si comparten vecino en V. Peso = vecinos en común. Diagonal = grado en bipartita.",top:AV},
-  {title:"Proyección P_V",f:"[Bᵀ·B]_ij = |N(i)∩N(j)|",body:"Análogo para V. Una arista en la proyección indica al menos un vecino compartido; recién con peso ≥ 2 aparece al menos un 4-ciclo.",top:AV},
-  {title:"Pérdida de información",f:"∃G≠G': P_U(G)=P_U(G')",body:"Las proyecciones no son invertibles. Distintas bipartitas pueden generar la misma proyección.",top:AV},
-  {title:"4-ciclos (mariposas)",f:"□=u₁–v₁–u₂–v₂–u₁",body:"Motivo fundamental de redes bipartitas. Si dos nodos proyectados comparten dos vecinos, aparece al menos un 4-ciclo. Son el análogo natural de los triángulos en redes unimodales.",top:AP},
-  {title:"Redundancia (Latapy 2008)",f:"RC(u) = pares con vecino común / C(k_u,2)",body:"Clustering local adaptado a bipartitas. Mide qué fracción de los pares de vecinos de u comparten al menos un vecino adicional.",top:AP},
-  {title:"Nestedness (NODF)",f:"NODF ∈ [0,100]",body:"¿Los vecindarios de nodos de bajo grado son subconjunto de los de alto grado? Crucial en ecología (plantas–polinizadores) y economía (países–productos).",top:AP},
-  {title:"Modelo nulo bipartito",f:"E[w_ij]≈k_i k_j/|V| (HM simple)",body:"Para una proyección sobre U, este baseline hipergeométrico simple da una intuición del solapamiento esperado. Si importan también los grados de V, se requieren modelos nulos más ricos.",top:"#94a3b8"},
-  {title:"Backbone extraction",f:"HM / SDSM / FDSM",body:"Un backbone formal compara pesos observados con distribuciones nulas. En esta herramienta mostramos solo un cribado heurístico basado en E[w], no un test exacto de significancia.",top:"#94a3b8"},
-  {title:"Densidad bipartita",f:"ρ = |E|/(|U|×|V|)",body:"Fracción de aristas posibles. Redes reales son muy dispersas. Baja densidad en la bipartita puede implicar alta densidad en la proyección.",top:"#94a3b8"},
+const REFERENCES={
+  latapy:{
+    title:"Basic notions for the analysis of large two-mode networks",
+    authors:"Latapy, Magnien & Del Vecchio",
+    year:"2008",
+    note:"Marco base para pensar redes bipartitas sin reducirlas demasiado pronto a una proyección.",
+    articleUrl:"https://www.complexnetworks.fr/basic-notions-for-the-analysis-of-large-two-mode-networks/",
+    articleLabel:"Artículo",
+    downloadUrl:"https://www.complexnetworks.fr/wp-content/uploads/2011/01/socnet07.pdf",
+    downloadLabel:"Descargar PDF",
+  },
+  zhou:{
+    title:"Bipartite network projection and personal recommendation",
+    authors:"Zhou, Ren, Medo & Zhang",
+    year:"2007",
+    note:"Discute proyecciones ponderadas y por qué no toda co-ocurrencia debe tratarse igual.",
+    articleUrl:"https://journals.aps.org/pre/abstract/10.1103/PhysRevE.76.046115",
+    articleLabel:"Artículo",
+    downloadUrl:"https://doc.rero.ch/record/8503/files/zhang_bnp.pdf",
+    downloadLabel:"Descargar PDF",
+  },
+  almeida:{
+    title:"A consistent metric for nestedness analysis in ecological systems",
+    authors:"Almeida-Neto, Guimarães, Guimarães Jr., Loyola & Ulrich",
+    year:"2008",
+    note:"Definición original de NODF como solapamiento con fill decreciente.",
+    articleUrl:"https://ecoevol.ufg.br/adrimelo/div/Almeida-Neto_et_al-2008-NODF.pdf",
+    articleLabel:"Leer PDF",
+    downloadUrl:"https://ecoevol.ufg.br/adrimelo/div/Almeida-Neto_et_al-2008-NODF.pdf",
+    downloadLabel:"Descargar PDF",
+  },
+  domagalski:{
+    title:"Backbone: An R package for extracting the backbone of bipartite projections",
+    authors:"Domagalski, Neal & Sagan",
+    year:"2021",
+    note:"Resume HM, SDSM y FDSM y deja claro por qué un backbone formal necesita una distribución nula.",
+    articleUrl:"https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0244363",
+    articleLabel:"Artículo",
+    downloadUrl:"https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0244363&type=printable",
+    downloadLabel:"Descargar PDF",
+  },
+  zweig:{
+    title:"A systematic approach to the one-mode projection of bipartite graphs",
+    authors:"Zweig & Kaufmann",
+    year:"2011",
+    note:"Buen recordatorio de que proyectar ya es una decisión analítica y no un paso neutro.",
+    articleUrl:"https://link.springer.com/article/10.1007/s13278-011-0021-0",
+    articleLabel:"Artículo",
+    downloadUrl:"https://doi.org/10.1007/s13278-011-0021-0",
+    downloadLabel:"DOI",
+  },
+};
+
+const CONCEPT_SECTIONS=[
+  {
+    kicker:"1. El objeto de estudio",
+    title:"Antes de proyectar, decide si el fenómeno es realmente bipartito",
+    paragraphs:[
+      "Muchas redes que luego aparecen como coautoría, cocompras o coparticipación nacen en realidad de una relación entre dos tipos de entidades: autores y papers, personas y eventos, países y productos. En esos casos, la representación natural no es una red unimodal sino un grafo bipartito.",
+      "Mantener ambos modos no es solo una decisión visual. También preserva la semántica del problema: evita mezclar actores con artefactos y deja explícito qué observación corresponde a una afiliación real. Por eso esta herramienta parte desde la matriz de biadyacencia B y no desde una proyección ya comprimida."
+    ],
+    formula:"G=(U,V,E),   E⊆U×V,   B∈{0,1}^{|U|×|V|}",
+    references:["latapy"],
+  },
+  {
+    kicker:"2. Proyectar es comprimir",
+    title:"La proyección es útil, pero ya perdió parte de la historia",
+    paragraphs:[
+      "La proyección sobre U conecta dos nodos cuando comparten al menos un vecino en V. Algebraicamente, cada entrada de B·Bᵀ cuenta vecinos comunes y la diagonal recupera el grado bipartito. Eso hace que la proyección sea cómoda para visualizar similitud o co-ocurrencia.",
+      "Pero proyectar no es inocente. Un peso 1 solo dice que existe un vecino compartido; un peso 2 o más ya implica al menos un 4-ciclo. Además, distintas bipartitas pueden generar exactamente la misma proyección, y los nodos de alto grado tienden a inflar co-ocurrencias y formar cliques aparentes aunque la estructura original sea más pobre."
+    ],
+    formula:"P_U = B·Bᵀ,   P_V = Bᵀ·B",
+    references:["latapy","zhou","zweig"],
+  },
+  {
+    kicker:"3. Qué conviene medir",
+    title:"Hay preguntas que se responden mejor en la bipartita que en la proyección",
+    paragraphs:[
+      "La redundancia de Latapy pregunta si los pares de vecinos de un nodo seguirían conectados en la proyección incluso si ese nodo desapareciera. Es una manera más fina de hablar de solapamiento local en datos de afiliación.",
+      "NODF, en cambio, pregunta si los vecindarios pequeños tienden a estar contenidos en los grandes. Esa idea es útil cuando interesa una organización jerárquica o anidada de interacciones. Densidad, redundancia y nestedness no dicen lo mismo: una red puede ser muy dispersa y aun así producir una proyección bastante densa o muy anidada."
+    ],
+    formula:"RC(u)= pares redundantes / C(k_u,2),   NODF∈[0,100]",
+    references:["latapy","almeida"],
+  },
+  {
+    kicker:"4. Cuándo hablar de significancia",
+    title:"Un peso alto no basta: hace falta compararlo con un modelo nulo",
+    paragraphs:[
+      "En proyecciones ponderadas, los pesos observados crecen naturalmente cuando hay nodos de alto grado. Por eso no basta con ver cuántos vecinos comparten dos nodos: también importa cuánto solapamiento esperarías por azar dada la estructura marginal de la bipartita.",
+      "La literatura distingue modelos nulos con distintas restricciones, como HM, SDSM y FDSM. En esta app usamos un baseline simple solo para intuición didáctica. Sirve para ver por qué algunas aristas parecen triviales, pero no debe confundirse con un backbone formal basado en p-values o simulación."
+    ],
+    formula:"E[w_{ij}]≈k_i k_j / |V|   para una HM simple sobre la proyección en U",
+    references:["domagalski","zweig"],
+  },
 ];
+
+const CONCEPT_LIBRARY=["latapy","zhou","almeida","domagalski","zweig"];
+
+function ConceptReferenceCard({reference}){
+  return(
+    <div className="concept-ref-card">
+      <div className="concept-ref-top">
+        <div>
+          <p className="concept-ref-title">{reference.title}</p>
+          <p className="concept-ref-meta">{reference.authors} · {reference.year}</p>
+        </div>
+        <div className="concept-ref-links">
+          <a className="concept-ref-link" href={reference.articleUrl} target="_blank" rel="noopener noreferrer">{reference.articleLabel}</a>
+          <a className="concept-ref-link" href={reference.downloadUrl} target="_blank" rel="noopener noreferrer">{reference.downloadLabel}</a>
+        </div>
+      </div>
+      <p className="concept-ref-note">{reference.note}</p>
+    </div>
+  );
+}
 
 /* ═══════════════ APP ═══════════════ */
 export default function App(){
@@ -548,28 +648,42 @@ export default function App(){
 
           {/* CONCEPTO */}
           {tab==="concepto"&&(
-            <section className="editorial-panel editorial-stack">
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:12}}>
-                {THEORY.map((c,i)=>(
-                  <div key={i} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:16,padding:"16px 18px",borderTop:`4px solid ${c.top}`,boxShadow:PANEL_SHADOW}}>
-                    <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:"#1e293b"}}>{c.title}</p>
-                    <p style={{margin:"0 0 10px",fontSize:12,lineHeight:1.65,color:"#475569"}}>{c.body}</p>
-                    <div style={{background:LIGHTGREY,border:`1px solid ${PANEL_BORDER}`,borderRadius:8,padding:"6px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
-                  </div>
-                ))}
+            <section className="editorial-panel editorial-stack concept-story">
+              <div className="concept-intro">
+                <p>
+                  Esta pestaña no busca listar definiciones sueltas. La idea es responder, de arriba hacia abajo, cuatro preguntas que suelen confundirse en clase: qué modela realmente una red bipartita, qué conserva y qué destruye una proyección, qué métricas conviene leer antes de proyectar y cuándo un peso observado necesita un modelo nulo para interpretarse.
+                </p>
               </div>
-              <div className="editorial-note-grid">
-                <div className="editorial-note warm">
-                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#92400e"}}>💡 Álgebra clave</p>
-                  <p style={{margin:0,fontSize:12,color:"#78350f",lineHeight:1.7}}>
-                    <strong>B·Bᵀ</strong> = pesos P_U, &nbsp;<strong>Bᵀ·B</strong> = pesos P_V. La diagonal = grado del nodo. Ve a <em>Álgebra matricial</em> para verlo paso a paso.
-                  </p>
-                </div>
-                <div className="editorial-note cool">
-                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Significancia requiere modelo nulo</p>
-                  <p style={{margin:0,fontSize:12,color:"#166534",lineHeight:1.7}}>
-                    Las proyecciones ponderadas están sesgadas por el grado. Para hablar de co-ocurrencias significativas, compara los pesos con un modelo nulo apropiado; el filtro mostrado aquí es solo heurístico.
-                  </p>
+
+              {CONCEPT_SECTIONS.map((section)=>(
+                <article key={section.title} className="concept-block">
+                  <div className="concept-kicker">{section.kicker}</div>
+                  <h3>{section.title}</h3>
+                  <div className="concept-body">
+                    {section.paragraphs.map((paragraph)=>(
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+                  <div className="concept-formula">
+                    <code>{section.formula}</code>
+                  </div>
+                  <div className="concept-ref-list">
+                    {section.references.map((key)=>(
+                      <ConceptReferenceCard key={`${section.title}-${key}`} reference={REFERENCES[key]}/>
+                    ))}
+                  </div>
+                </article>
+              ))}
+
+              <div className="concept-reading">
+                <h3>Lecturas mínimas y descargas</h3>
+                <p>
+                  Si quieres convertir esta herramienta en una unidad más formal del curso, estas son las lecturas que mejor sostienen lo que aparece en las pestañas de álgebra, proyecciones y análisis.
+                </p>
+                <div className="concept-ref-list">
+                  {CONCEPT_LIBRARY.map((key)=>(
+                    <ConceptReferenceCard key={`library-${key}`} reference={REFERENCES[key]}/>
+                  ))}
                 </div>
               </div>
             </section>
