@@ -1,0 +1,31 @@
+{
+  "name": "Redes bipartitas y sus proyecciones",
+  "short_name": "Bipartitas",
+  "description": "Herramienta interactiva de CRiSS Lab sobre redes bipartitas, biadyacencia, proyecciones, backbone y nestedness.",
+  "lang": "es-CL",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafaf7",
+  "theme_color": "#b26a1d",
+  "categories": [
+    "education",
+    "science",
+    "data-visualization"
+  ],
+  "icons": [
+    {
+      "src": "/favicon-square.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

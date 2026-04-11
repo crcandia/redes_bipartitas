@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import * as d3 from "d3";
+import "./App.css";
 
-const AU="#BA7517",AUL="#FAEEDA",AUS="#854F0B";
-const AV="#0F6E56",AVL="#E1F5EE",AVS="#085041";
-const AP="#533AB7",APL="#EEEDFE",APS="#3C3489";
-const GREY="#64748b",LIGHTGREY="#f8fafc",BORDER="#e2e8f0";
+const AU="#B26A1D",AUL="#F5E3C7",AUS="#7A4B13";
+const AV="#2F6B5E",AVL="#DCEEE7",AVS="#1F5147";
+const AP="#6C5BA7",APL="#ECE8FA",APS="#4B3B84";
+const GREY="#5F5A52",LIGHTGREY="#F4F1EC",BORDER="#E0DDD6";
 
 const PRESETS={
   actores:{name:"🎬 Actores & Películas",uLabel:"Actores",vLabel:"Películas",
@@ -512,61 +513,71 @@ export default function App(){
   return(
     <div className="app-shell">
       <main className="app-main">
-        <div style={{fontFamily:"system-ui,sans-serif",maxWidth:840,margin:"0 auto",color:"#1e293b"}}>
-          <header style={{marginBottom:18}}>
-            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:3}}>
-              <div style={{width:4,height:28,background:`linear-gradient(to bottom,${AU},${AV})`,borderRadius:2}}/>
-              <h1 style={{margin:0,fontSize:20,fontWeight:700,letterSpacing:-.3}}>Redes bipartitas y sus proyecciones</h1>
-            </div>
-            <p style={{margin:"0 0 0 14px",fontSize:13,color:GREY}}>Herramienta interactiva · Curso de Redes y Sistemas Complejos · Magíster en Data Science - IDS - UDD </p>
+        <div className="editorial-shell">
+          <header className="editorial-hero">
+            <div className="editorial-badge">Curso Redes y Sistemas Complejos</div>
+            <h1>Redes bipartitas y sus proyecciones</h1>
+            <p className="editorial-subtitle">De la biadjacencia a las proyecciones ponderadas</p>
+            <p className="editorial-lead">
+              Recurso interactivo del curso Redes y Sistemas Complejos dedicado a redes bipartitas, matrices de biadjacencia, proyecciones, backbone extraction y nestedness. Combina intuición algebraica, edición directa de grafos y análisis visual para explorar cómo se conserva y se pierde información al proyectar.
+            </p>
+            <p className="editorial-meta">
+              Desarrollado por
+              <a href="https://www.crcandia.com/" target="_blank" rel="noopener noreferrer">Cristian Candia</a>
+              en
+              <a href="https://criss-lab.com/" target="_blank" rel="noopener noreferrer">CRiSS Lab</a>.
+            </p>
           </header>
 
-          <div style={{display:"flex",borderBottom:`1.5px solid ${BORDER}`,marginBottom:22,overflowX:"auto",gap:0}}>
+          <div className="editorial-tabs">
             {TABS.map(([id,label])=>(
-              <button key={id} onClick={()=>setTab(id)} style={{
-                padding:"9px 14px",fontSize:13,fontWeight:tab===id?700:400,color:tab===id?"#1e293b":GREY,
-                background:"transparent",border:"none",borderBottom:tab===id?"2.5px solid #1e293b":"2.5px solid transparent",
-                cursor:"pointer",marginBottom:-1.5,transition:"color .15s",whiteSpace:"nowrap"}}>{label}</button>
+              <button
+                key={id}
+                className={`editorial-tab${tab===id?" active":""}`}
+                onClick={()=>setTab(id)}
+              >
+                {label}
+              </button>
             ))}
           </div>
 
           {/* CONCEPTO */}
           {tab==="concepto"&&(
-            <div>
+            <section className="editorial-panel editorial-stack">
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:12}}>
                 {THEORY.map((c,i)=>(
-                  <div key={i} style={{background:"#fff",border:`0.5px solid ${BORDER}`,borderRadius:12,padding:"14px 16px",borderTop:`3px solid ${c.top}`}}>
+                  <div key={i} style={{background:"#fcfbf8",border:`0.5px solid ${BORDER}`,borderRadius:12,padding:"14px 16px",borderTop:`3px solid ${c.top}`,boxShadow:"0 1px 2px rgba(0,0,0,0.03)"}}>
                     <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:"#1e293b"}}>{c.title}</p>
                     <p style={{margin:"0 0 10px",fontSize:12,lineHeight:1.65,color:"#475569"}}>{c.body}</p>
-                    <div style={{background:"#f1f5f9",borderRadius:6,padding:"5px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
+                    <div style={{background:LIGHTGREY,borderRadius:6,padding:"5px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:14,display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
-                <div style={{padding:"13px 16px",background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10}}>
+              <div className="editorial-note-grid">
+                <div className="editorial-note warm">
                   <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#92400e"}}>💡 Álgebra clave</p>
                   <p style={{margin:0,fontSize:12,color:"#78350f",lineHeight:1.7}}>
                     <strong>B·Bᵀ</strong> = pesos P_U, &nbsp;<strong>Bᵀ·B</strong> = pesos P_V. La diagonal = grado del nodo. Ve a <em>Álgebra matricial</em> para verlo paso a paso.
                   </p>
                 </div>
-                <div style={{padding:"13px 16px",background:"#f0fdf4",border:"1px solid #86efac",borderRadius:10}}>
+                <div className="editorial-note cool">
                   <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Backbone obligatorio</p>
                   <p style={{margin:0,fontSize:12,color:"#166534",lineHeight:1.7}}>
                     Las proyecciones ponderadas están sesgadas por el grado. <strong>Siempre compara pesos con el modelo nulo</strong> antes de interpretar co-ocurrencias como significativas.
                   </p>
                 </div>
               </div>
-            </div>
+            </section>
           )}
 
           {/* CONSTRUCTOR */}
           {tab==="constructor"&&(
-            <div>
+            <section className="editorial-panel editorial-stack">
               <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
                 {Object.entries(PRESETS).map(([k,p])=>(
                   <button key={k} onClick={()=>loadPreset(k)} style={{padding:"6px 14px",fontSize:12.5,borderRadius:8,cursor:"pointer",
-                    border:pKey===k?"2px solid #334155":`1px solid ${BORDER}`,background:pKey===k?"#1e293b":"transparent",
-                    color:pKey===k?"white":"#475569",fontWeight:pKey===k?600:400,transition:"all .15s"}}>{p.name}</button>
+                    border:pKey===k?`2px solid ${AUS}`:`1px solid ${BORDER}`,background:pKey===k?AUL:"#fff",
+                    color:pKey===k?AUS:GREY,fontWeight:pKey===k?700:500,transition:"all .15s",boxShadow:pKey===k?"0 1px 2px rgba(0,0,0,0.04)":"none"}}>{p.name}</button>
                 ))}
               </div>
               <div style={{padding:"8px 12px",background:LIGHTGREY,borderRadius:8,marginBottom:16,fontSize:12,color:GREY,border:`0.5px solid ${BORDER}`}}>
@@ -574,7 +585,7 @@ export default function App(){
                 <span style={{color:AVS,fontWeight:700}}>2.</span> Clic en <span style={{color:AVS,fontWeight:600}}>{data.vLabel}</span> para agregar/quitar arista. &ensp;
                 <span style={{fontWeight:700}}>3.</span> Clic en arista existente para eliminar.
               </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:24,alignItems:"start"}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:24,alignItems:"start"}}>
                 <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
                   selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
                 <div style={{minWidth:200}}>
@@ -589,12 +600,12 @@ export default function App(){
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
           )}
 
           {/* ÁLGEBRA MATRICIAL */}
           {tab==="algebra"&&(
-            <div>
+            <section className="editorial-panel editorial-stack">
               <div style={{padding:"10px 14px",background:APL,borderLeft:`3.5px solid ${APS}`,borderRadius:8,marginBottom:18}}>
                 <p style={{margin:"0 0 4px",fontSize:13,fontWeight:700,color:APS}}>De la biadjacencia a la proyección ponderada — paso a paso</p>
                 <p style={{margin:0,fontSize:12,color:APS,lineHeight:1.7}}>
@@ -604,16 +615,16 @@ export default function App(){
                 </p>
               </div>
               <MatrixStepper U={data.U} V={data.V} edges={edges}/>
-            </div>
+            </section>
           )}
 
           {/* PROYECCIONES */}
           {tab==="proyecciones"&&(
-            <div>
+            <section className="editorial-panel editorial-stack">
               <p style={{margin:"0 0 14px",fontSize:13,color:"#475569",lineHeight:1.65,padding:"10px 14px",background:LIGHTGREY,borderRadius:8,border:`0.5px solid ${BORDER}`}}>
                 Nodos del mismo conjunto se conectan si comparten al menos un vecino. El grosor de arista es proporcional al peso compartido.
               </p>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20}}>
                 {[{label:`P_U — ${data.uLabel}`,nodes:data.U,pe:uEdges,c:AU,cl:AUL,cs:AUS},
                   {label:`P_V — ${data.vLabel}`,nodes:data.V,pe:vEdges,c:AV,cl:AVL,cs:AVS}].map(({label,nodes,pe,c,cl,cs})=>(
                   <div key={label}>
@@ -627,7 +638,7 @@ export default function App(){
                   </div>
                 ))}
               </div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginTop:20}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20,marginTop:20}}>
                 {[{label:"Matriz P_U (B·Bᵀ)",nodes:data.U,pe:uEdges,cl:AUL,cs:AUS},
                   {label:"Matriz P_V (Bᵀ·B)",nodes:data.V,pe:vEdges,cl:AVL,cs:AVS}].map(({label,nodes,pe,cl,cs})=>(
                   <div key={label}>
@@ -636,13 +647,13 @@ export default function App(){
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
 
           {/* ANÁLISIS */}
           {tab==="analisis"&&(
-            <div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
+            <section className="editorial-panel editorial-stack">
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10,marginBottom:20}}>
                 <Stat label="|U|" value={data.U.length} sub="Nodos U"/>
                 <Stat label="|V|" value={data.V.length} sub="Nodos V"/>
                 <Stat label="|E|" value={edges.length} sub="Aristas"/>
@@ -657,7 +668,7 @@ export default function App(){
                 <Stat label="ρ_{P_U}" value={densityPU} sub="Densidad P_U"/>
               </div>
 
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16,marginBottom:20}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:16,marginBottom:20}}>
                 <DegBar nodes={data.U} degs={uDegs} color={AU} label={`Distribución de grado — ${data.uLabel}`}/>
                 <DegBar nodes={data.V} degs={vDegs} color={AV} label={`Distribución de grado — ${data.vLabel}`}/>
               </div>
@@ -692,7 +703,7 @@ export default function App(){
               </div>
 
               {/* degree tables */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:16}}>
                 {[{label:data.uLabel,nodes:data.U,degs:uDegs,cs:AUS,cl:AUL},
                   {label:data.vLabel,nodes:data.V,degs:vDegs,cs:AVS,cl:AVL}].map(({label,nodes,degs,cs,cl})=>(
                   <div key={label}>
@@ -714,7 +725,7 @@ export default function App(){
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
           )}
         </div>
       </main>
@@ -722,12 +733,22 @@ export default function App(){
       <footer className="site-footer">
         <a
           className="site-footer-link"
-          href="https://criss-lab.com/author/cristian-candia/"
+          href="https://www.crcandia.com/"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Abrir el perfil de Cristian Candia en una nueva pestaña"
+          aria-label="Abrir el sitio de Cristian Candia en una nueva pestaña"
         >
-          by Cristian Candia, Ph.D.
+          Cristian Candia, Ph.D.
+        </a>
+        <span>·</span>
+        <a
+          className="site-footer-link"
+          href="https://criss-lab.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Abrir CRiSS Lab en una nueva pestaña"
+        >
+          CRiSS Lab
         </a>
       </footer>
     </div>
