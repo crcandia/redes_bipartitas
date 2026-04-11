@@ -6,6 +6,8 @@ const AU="#B26A1D",AUL="#F5E3C7",AUS="#7A4B13";
 const AV="#2F6B5E",AVL="#DCEEE7",AVS="#1F5147";
 const AP="#6C5BA7",APL="#ECE8FA",APS="#4B3B84";
 const GREY="#5F5A52",LIGHTGREY="#F4F1EC",BORDER="#E0DDD6";
+const PANEL="#FCFBF8",PANEL_ALT="#FFFDF9",PANEL_BORDER="#E8E2D8";
+const PANEL_SHADOW="0 10px 24px rgba(44,38,31,0.05)";
 
 const PRESETS={
   actores:{name:"🎬 Actores & Películas",uLabel:"Actores",vLabel:"Películas",
@@ -56,12 +58,15 @@ function redundancyCoeff(U,V,edges){
 function nodfScore(U,V,edges){
   const uAdj=U.map(()=>new Set()),vAdj=V.map(()=>new Set());
   edges.forEach(([u,v])=>{uAdj[u].add(v);vAdj[v].add(u);});
-  const sc=(nodes,adj)=>{let s=0,n=0;
+  const sc=(nodes,adj)=>{let s=0;
+    const totalPairs=nodes.length*(nodes.length-1)/2;
+    if(totalPairs===0)return 0;
     for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
-      const ki=adj[i].size,kj=adj[j].size;if(ki===kj||!ki||!kj)continue;
+      const ki=adj[i].size,kj=adj[j].size;
+      if(ki===kj||!ki||!kj)continue;
       const small=ki<kj?adj[i]:adj[j],big=ki<kj?adj[j]:adj[i];
-      s+=[...small].filter(x=>big.has(x)).length/Math.min(ki,kj);n++;
-    }return n?s/n:0;
+      s+=[...small].filter(x=>big.has(x)).length/Math.min(ki,kj);
+    }return s/totalPairs;
   };
   return(((sc(U,uAdj)+sc(V,vAdj))/2)*100).toFixed(1);
 }
@@ -235,13 +240,13 @@ function MatrixStepperPanel({U,V,edges,mode,setMode}){
       <div style={{display:"flex",gap:8,marginBottom:16}}>
         {[["U","P_U = B · Bᵀ",AU,AUL],["V","P_V = Bᵀ · B",AV,AVL]].map(([m,lbl,c,cl])=>(
           <button key={m} onClick={()=>setMode(m)} style={{padding:"7px 18px",fontSize:13,borderRadius:8,
-            cursor:"pointer",border:"none",background:mode===m?c:cl,
-            color:mode===m?"white":c,fontWeight:mode===m?700:500,fontFamily:"monospace",transition:"all .15s"}}>{lbl}</button>
+            cursor:"pointer",border:mode===m?"none":`1px solid ${PANEL_BORDER}`,background:mode===m?c:cl,
+            color:mode===m?"white":c,fontWeight:mode===m?700:500,fontFamily:"monospace",transition:"all .15s",boxShadow:mode===m?PANEL_SHADOW:"inset 0 1px 0 rgba(255,255,255,0.7)"}}>{lbl}</button>
         ))}
       </div>
 
       {/* active cell banner */}
-      <div style={{padding:"10px 14px",background:colorL,borderLeft:`3.5px solid ${colorS}`,borderRadius:8,marginBottom:16}}>
+      <div style={{padding:"12px 16px",background:`linear-gradient(180deg, ${colorL} 0%, ${PANEL_ALT} 100%)`,borderLeft:`3.5px solid ${colorS}`,borderRadius:12,marginBottom:16,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.65)"}}>
         <p style={{margin:"0 0 4px",fontSize:12,fontWeight:700,color:colorS}}>
           Celda [{abbreviateStepperLabel(rowNames[ci])}, {abbreviateStepperLabel(colNames[cj])}] &nbsp;·&nbsp; paso {step+1} de {totalSteps}
         </p>
@@ -299,7 +304,7 @@ function MatrixStepperPanel({U,V,edges,mode,setMode}){
       </div>
 
       {/* dot product visual */}
-      <div style={{background:LIGHTGREY,borderRadius:10,padding:"12px 14px",marginBottom:16,border:`0.5px solid ${BORDER}`}}>
+      <div style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,borderRadius:14,padding:"14px 16px",marginBottom:16,border:`1px solid ${PANEL_BORDER}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.72)"}}>
         <p style={{margin:"0 0 10px",fontSize:11,fontWeight:700,color:GREY}}>Producto punto — contribución de cada nodo intermedio</p>
         <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
           {innerNames.map((name,k)=>{
@@ -338,7 +343,7 @@ function MatrixStepperPanel({U,V,edges,mode,setMode}){
       </div>
 
       {/* insight */}
-      <div style={{padding:"12px 14px",background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10}}>
+      <div style={{padding:"14px 16px",background:"linear-gradient(180deg, #fffbeb 0%, #fff7dc 100%)",border:"1px solid #fcd34d",borderRadius:14,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.72)"}}>
         <p style={{margin:"0 0 5px",fontSize:12,fontWeight:700,color:"#92400e"}}>🔑 Intuición algebraica</p>
         <p style={{margin:"0 0 8px",fontSize:12,color:"#78350f",lineHeight:1.7}}>
           Cada celda <strong>(i,j)</strong> es el <strong>producto punto</strong> de la fila i con la fila j de B.
@@ -414,7 +419,7 @@ function ProjMatrix({nodes,projEdges,colorLight,colorStroke}){
 function DegBar({nodes,degs,color,label}){
   const maxD=Math.max(...degs,1);
   return(
-    <div style={{background:LIGHTGREY,borderRadius:10,padding:"14px 14px 10px"}}>
+    <div style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"16px 16px 12px",boxShadow:PANEL_SHADOW}}>
       <p style={{margin:"0 0 10px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
       <div style={{display:"flex",gap:6,alignItems:"flex-end",height:72}}>
         {nodes.map((name,i)=>(
@@ -431,38 +436,38 @@ function DegBar({nodes,degs,color,label}){
 
 function Stat({label,value,sub,color}){
   return(
-    <div style={{background:LIGHTGREY,borderRadius:8,padding:"10px 12px",textAlign:"center"}}>
-      <div style={{fontSize:10,color:"#94a3b8",marginBottom:3}}>{sub}</div>
+    <div style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"12px 12px 10px",textAlign:"center",boxShadow:PANEL_SHADOW}}>
+      <div style={{fontSize:10,color:"#94a3b8",marginBottom:4,letterSpacing:0.2}}>{sub}</div>
       <div style={{fontSize:20,fontWeight:700,fontFamily:"monospace",color:color||"#1e293b"}}>{value}</div>
-      <div style={{fontSize:10,color:"#94a3b8",fontFamily:"monospace",marginTop:2}}>{label}</div>
+      <div style={{fontSize:10,color:"#94a3b8",fontFamily:"monospace",marginTop:4}}>{label}</div>
     </div>
   );
 }
 
-function BackboneTable({U,edges,uEdges}){
+function BackboneTable({U,edges,uEdges,otherCount}){
   const uDegs=U.map((_,i)=>edges.filter(([u])=>u===i).length);
-  const E=Math.max(edges.length,1);
+  const baselineDen=Math.max(otherCount,1);
   return(
-    <div style={{overflowX:"auto"}}>
+    <div style={{overflowX:"auto",background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"8px 10px 10px",boxShadow:PANEL_SHADOW}}>
       <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-        <thead><tr>{["Arista (u₁ — u₂)","w obs","w_esp","ratio","Backbone?"].map(h=>(
+        <thead><tr>{["Arista (u₁ — u₂)","w obs","E[w] HM","ratio","Filtro"].map(h=>(
           <th key={h} style={{padding:"7px 10px",textAlign:"left",color:GREY,fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>
         ))}</tr></thead>
         <tbody>{uEdges.map((e,idx)=>{
           const ku=uDegs[e.source],kv=uDegs[e.target];
-          const wE=(ku*kv)/E,ratio=wE>0?e.weight/wE:0,sig=ratio>1.5;
+          const wE=(ku*kv)/baselineDen,ratio=wE>0?e.weight/wE:0,sig=ratio>1.5;
           return <tr key={idx}>
             <td style={{padding:"6px 10px",borderBottom:`0.5px solid ${BORDER}`}}>{U[e.source]} — {U[e.target]}</td>
             <td style={{padding:"6px 10px",borderBottom:`0.5px solid ${BORDER}`,fontWeight:700,color:AU,fontFamily:"monospace"}}>{e.weight}</td>
             <td style={{padding:"6px 10px",borderBottom:`0.5px solid ${BORDER}`,fontFamily:"monospace",color:GREY}}>{wE.toFixed(2)}</td>
             <td style={{padding:"6px 10px",borderBottom:`0.5px solid ${BORDER}`,fontFamily:"monospace",color:ratio>1.5?AU:GREY,fontWeight:ratio>1.5?700:400}}>{ratio.toFixed(2)}×</td>
             <td style={{padding:"6px 10px",borderBottom:`0.5px solid ${BORDER}`}}>
-              <span style={{padding:"2px 10px",borderRadius:5,background:sig?AUL:"#f1f5f9",color:sig?AUS:GREY,fontWeight:600,fontSize:11}}>{sig?"✓ Sí":"✗ No"}</span>
+              <span style={{padding:"2px 10px",borderRadius:5,background:sig?AUL:"#f1f5f9",color:sig?AUS:GREY,fontWeight:600,fontSize:11}}>{sig?"✓ Alto":"· Bajo"}</span>
             </td>
           </tr>;
         })}</tbody>
       </table>
-      <p style={{fontSize:10,color:"#94a3b8",margin:"6px 0 0"}}>w_esp = k(u₁)·k(u₂)/|E| — modelo nulo de configuración bipartita. Ratio &gt; 1.5 = criterio ilustrativo.</p>
+      <p style={{fontSize:10,color:"#94a3b8",margin:"6px 0 0"}}>Baseline hipergeométrico simple para P_U: E[w] = k(u₁)·k(u₂)/|V|. El ratio &gt; 1.5 es solo un criterio ilustrativo, no un test formal de significancia.</p>
     </div>
   );
 }
@@ -473,13 +478,13 @@ const THEORY=[
   {title:"Condición bipartita",f:"G bipartito ↔ sin ciclos de longitud impar",body:"Equivalente a 2-coloreable. El ciclo más corto posible es de longitud 4 (cuadrado), no triángulos.",top:AU},
   {title:"Biadjacencia B",f:"B ∈ {0,1}|U|×|V|",body:"Matriz rectangular |U|×|V|, no cuadrada. Mucho más compacta que la adjyacencia para redes muy bipartitas.",top:AU},
   {title:"Proyección P_U",f:"[B·Bᵀ]_ij = |N(i)∩N(j)|",body:"Nodos de U conectados si comparten vecino en V. Peso = vecinos en común. Diagonal = grado en bipartita.",top:AV},
-  {title:"Proyección P_V",f:"[Bᵀ·B]_ij = |N(i)∩N(j)|",body:"Análogo para V. Cada arista de la proyección corresponde a al menos un 4-ciclo en la red bipartita original.",top:AV},
+  {title:"Proyección P_V",f:"[Bᵀ·B]_ij = |N(i)∩N(j)|",body:"Análogo para V. Una arista en la proyección indica al menos un vecino compartido; recién con peso ≥ 2 aparece al menos un 4-ciclo.",top:AV},
   {title:"Pérdida de información",f:"∃G≠G': P_U(G)=P_U(G')",body:"Las proyecciones no son invertibles. Distintas bipartitas pueden generar la misma proyección.",top:AV},
-  {title:"4-ciclos (mariposas)",f:"□=u₁–v₁–u₂–v₂–u₁",body:"Motivo fundamental de redes bipartitas. Toda arista en la proyección corresponde a ≥1 cuadrado. Son el análogo de los triángulos en redes unimodales.",top:AP},
+  {title:"4-ciclos (mariposas)",f:"□=u₁–v₁–u₂–v₂–u₁",body:"Motivo fundamental de redes bipartitas. Si dos nodos proyectados comparten dos vecinos, aparece al menos un 4-ciclo. Son el análogo natural de los triángulos en redes unimodales.",top:AP},
   {title:"Redundancia (Latapy 2008)",f:"RC(u) = pares con vecino común / C(k_u,2)",body:"Clustering local adaptado a bipartitas. Mide qué fracción de los pares de vecinos de u comparten al menos un vecino adicional.",top:AP},
   {title:"Nestedness (NODF)",f:"NODF ∈ [0,100]",body:"¿Los vecindarios de nodos de bajo grado son subconjunto de los de alto grado? Crucial en ecología (plantas–polinizadores) y economía (países–productos).",top:AP},
-  {title:"Modelo nulo bipartito",f:"w_esp(u₁,u₂) = k(u₁)·k(u₂)/|E|",body:"Peso esperado por azar bajo la configuración bipartita. Siempre comparar pesos observados con este baseline antes de interpretarlos.",top:"#94a3b8"},
-  {title:"Backbone extraction",f:"H₀: w ≤ w_esp, rechazar si p < α",body:"Proyecciones densas tienen aristas triviales. El filtro de disparidad (Serrano 2009) o el modelo hipergeométrico (Neal 2014) retienen co-ocurrencias no explicadas por azar.",top:"#94a3b8"},
+  {title:"Modelo nulo bipartito",f:"E[w_ij]≈k_i k_j/|V| (HM simple)",body:"Para una proyección sobre U, este baseline hipergeométrico simple da una intuición del solapamiento esperado. Si importan también los grados de V, se requieren modelos nulos más ricos.",top:"#94a3b8"},
+  {title:"Backbone extraction",f:"HM / SDSM / FDSM",body:"Un backbone formal compara pesos observados con distribuciones nulas. En esta herramienta mostramos solo un cribado heurístico basado en E[w], no un test exacto de significancia.",top:"#94a3b8"},
   {title:"Densidad bipartita",f:"ρ = |E|/(|U|×|V|)",body:"Fracción de aristas posibles. Redes reales son muy dispersas. Baja densidad en la bipartita puede implicar alta densidad en la proyección.",top:"#94a3b8"},
 ];
 
@@ -546,10 +551,10 @@ export default function App(){
             <section className="editorial-panel editorial-stack">
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(248px,1fr))",gap:12}}>
                 {THEORY.map((c,i)=>(
-                  <div key={i} style={{background:"#fcfbf8",border:`0.5px solid ${BORDER}`,borderRadius:12,padding:"14px 16px",borderTop:`3px solid ${c.top}`,boxShadow:"0 1px 2px rgba(0,0,0,0.03)"}}>
+                  <div key={i} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:16,padding:"16px 18px",borderTop:`4px solid ${c.top}`,boxShadow:PANEL_SHADOW}}>
                     <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:"#1e293b"}}>{c.title}</p>
                     <p style={{margin:"0 0 10px",fontSize:12,lineHeight:1.65,color:"#475569"}}>{c.body}</p>
-                    <div style={{background:LIGHTGREY,borderRadius:6,padding:"5px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
+                    <div style={{background:LIGHTGREY,border:`1px solid ${PANEL_BORDER}`,borderRadius:8,padding:"6px 10px",fontFamily:"monospace",fontSize:11,color:"#334155"}}>{c.f}</div>
                   </div>
                 ))}
               </div>
@@ -561,9 +566,9 @@ export default function App(){
                   </p>
                 </div>
                 <div className="editorial-note cool">
-                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Backbone obligatorio</p>
+                  <p style={{margin:"0 0 5px",fontSize:13,fontWeight:700,color:"#14532d"}}>⚠️ Significancia requiere modelo nulo</p>
                   <p style={{margin:0,fontSize:12,color:"#166534",lineHeight:1.7}}>
-                    Las proyecciones ponderadas están sesgadas por el grado. <strong>Siempre compara pesos con el modelo nulo</strong> antes de interpretar co-ocurrencias como significativas.
+                    Las proyecciones ponderadas están sesgadas por el grado. Para hablar de co-ocurrencias significativas, compara los pesos con un modelo nulo apropiado; el filtro mostrado aquí es solo heurístico.
                   </p>
                 </div>
               </div>
@@ -576,19 +581,22 @@ export default function App(){
               <div style={{display:"flex",gap:8,marginBottom:14,flexWrap:"wrap"}}>
                 {Object.entries(PRESETS).map(([k,p])=>(
                   <button key={k} onClick={()=>loadPreset(k)} style={{padding:"6px 14px",fontSize:12.5,borderRadius:8,cursor:"pointer",
-                    border:pKey===k?`2px solid ${AUS}`:`1px solid ${BORDER}`,background:pKey===k?AUL:"#fff",
-                    color:pKey===k?AUS:GREY,fontWeight:pKey===k?700:500,transition:"all .15s",boxShadow:pKey===k?"0 1px 2px rgba(0,0,0,0.04)":"none"}}>{p.name}</button>
+                    border:pKey===k?`2px solid ${AUS}`:`1px solid ${PANEL_BORDER}`,background:pKey===k?AUL:PANEL_ALT,
+                    color:pKey===k?AUS:GREY,fontWeight:pKey===k?700:500,transition:"all .15s",boxShadow:pKey===k?PANEL_SHADOW:"0 1px 0 rgba(255,255,255,0.8) inset"}}>{p.name}</button>
                 ))}
               </div>
-              <div style={{padding:"8px 12px",background:LIGHTGREY,borderRadius:8,marginBottom:16,fontSize:12,color:GREY,border:`0.5px solid ${BORDER}`}}>
+              <div style={{padding:"10px 14px",background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,borderRadius:12,marginBottom:18,fontSize:12,color:GREY,border:`1px solid ${PANEL_BORDER}`,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.7)"}}>
                 <span style={{color:AUS,fontWeight:700}}>1.</span> Clic en <span style={{color:AUS,fontWeight:600}}>{data.uLabel}</span> para seleccionar. &ensp;
                 <span style={{color:AVS,fontWeight:700}}>2.</span> Clic en <span style={{color:AVS,fontWeight:600}}>{data.vLabel}</span> para agregar/quitar arista. &ensp;
                 <span style={{fontWeight:700}}>3.</span> Clic en arista existente para eliminar.
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:24,alignItems:"start"}}>
-                <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
-                  selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
-                <div style={{minWidth:200}}>
+                <div style={{minWidth:0,background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"16px 18px 14px",boxShadow:PANEL_SHADOW}}>
+                  <p style={{margin:"0 0 10px",fontSize:12,fontWeight:700,color:GREY}}>Edición del grafo bipartito</p>
+                  <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
+                    selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
+                </div>
+                <div style={{minWidth:200,background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"16px 18px 14px",boxShadow:PANEL_SHADOW}}>
                   <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>Biadjacencia B</p>
                   <BiadjMatrix U={data.U} V={data.V} edges={edges}/>
                   <div style={{marginTop:14,display:"grid",gap:5}}>
@@ -606,12 +614,12 @@ export default function App(){
           {/* ÁLGEBRA MATRICIAL */}
           {tab==="algebra"&&(
             <section className="editorial-panel editorial-stack">
-              <div style={{padding:"10px 14px",background:APL,borderLeft:`3.5px solid ${APS}`,borderRadius:8,marginBottom:18}}>
+              <div style={{padding:"12px 16px",background:`linear-gradient(180deg, ${APL} 0%, #f5f1ff 100%)`,borderLeft:`3.5px solid ${APS}`,borderRadius:12,marginBottom:18,boxShadow:"inset 0 1px 0 rgba(255,255,255,0.65)"}}>
                 <p style={{margin:"0 0 4px",fontSize:13,fontWeight:700,color:APS}}>De la biadjacencia a la proyección ponderada — paso a paso</p>
                 <p style={{margin:0,fontSize:12,color:APS,lineHeight:1.7}}>
                   Cada celda (i,j) de B·Bᵀ es el <strong>producto punto</strong> de las filas i y j de B.
                   Navega celda a celda y observa qué operación la genera. Presta atención a la diagonal y a las celdas con resultado 0.
-                  Cambia la red en <em>Constructor</em> y regresa para ver cómo varía.
+                  Cambia la red en <em>Constructor</em> y regresa para ver cómo varía. Si una celda fuera de la diagonal vale 1, hay un vecino compartido; si vale 2 o más, ya existe al menos un 4-ciclo.
                 </p>
               </div>
               <MatrixStepper U={data.U} V={data.V} edges={edges}/>
@@ -621,18 +629,18 @@ export default function App(){
           {/* PROYECCIONES */}
           {tab==="proyecciones"&&(
             <section className="editorial-panel editorial-stack">
-              <p style={{margin:"0 0 14px",fontSize:13,color:"#475569",lineHeight:1.65,padding:"10px 14px",background:LIGHTGREY,borderRadius:8,border:`0.5px solid ${BORDER}`}}>
-                Nodos del mismo conjunto se conectan si comparten al menos un vecino. El grosor de arista es proporcional al peso compartido.
+              <p style={{margin:"0 0 14px",fontSize:13,color:"#475569",lineHeight:1.65,padding:"12px 16px",background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,borderRadius:12,border:`1px solid ${PANEL_BORDER}`}}>
+                Nodos del mismo conjunto se conectan si comparten al menos un vecino. El grosor de arista es proporcional al peso compartido: peso 1 implica solapamiento mínimo; peso 2 o más ya señala al menos un 4-ciclo.
               </p>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20}}>
                 {[{label:`P_U — ${data.uLabel}`,nodes:data.U,pe:uEdges,c:AU,cl:AUL,cs:AUS},
                   {label:`P_V — ${data.vLabel}`,nodes:data.V,pe:vEdges,c:AV,cl:AVL,cs:AVS}].map(({label,nodes,pe,c,cl,cs})=>(
-                  <div key={label}>
+                  <div key={label} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:14,boxShadow:PANEL_SHADOW}}>
                     <div style={{padding:"8px 12px",marginBottom:10,background:cl,borderRadius:8,borderLeft:`3.5px solid ${cs}`}}>
                       <p style={{margin:0,fontSize:13,fontWeight:700,color:cs}}>{label}</p>
                       <p style={{margin:"3px 0 0",fontSize:11,color:cs}}>{pe.length} aristas · {nodes.length} nodos</p>
                     </div>
-                    <div style={{background:LIGHTGREY,borderRadius:10,padding:8}}>
+                    <div style={{background:LIGHTGREY,border:`1px solid ${PANEL_BORDER}`,borderRadius:12,padding:10}}>
                       <ProjectionGraph nodes={nodes} projEdges={pe} color={c} colorLight={cl} colorStroke={cs} height={220}/>
                     </div>
                   </div>
@@ -641,7 +649,7 @@ export default function App(){
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20,marginTop:20}}>
                 {[{label:"Matriz P_U (B·Bᵀ)",nodes:data.U,pe:uEdges,cl:AUL,cs:AUS},
                   {label:"Matriz P_V (Bᵀ·B)",nodes:data.V,pe:vEdges,cl:AVL,cs:AVS}].map(({label,nodes,pe,cl,cs})=>(
-                  <div key={label}>
+                  <div key={label} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"14px 14px 12px",boxShadow:PANEL_SHADOW}}>
                     <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
                     <ProjMatrix nodes={nodes} projEdges={pe} colorLight={cl} colorStroke={cs}/>
                   </div>
@@ -660,7 +668,7 @@ export default function App(){
                 <Stat label="ρ" value={density.toFixed(3)} sub="Densidad bipartita"/>
                 <Stat label="k̄_U" value={avgKU} sub="Grado medio U" color={AU}/>
                 <Stat label="k̄_V" value={avgKV} sub="Grado medio V" color={AV}/>
-                <Stat label="RC" value={rc} sub="Redundancia Latapy" color={AP}/>
+                <Stat label="RC_U" value={rc} sub={`Redundancia media ${data.uLabel}`} color={AP}/>
                 <Stat label="NODF" value={`${nd}%`} sub="Nestedness" color={AP}/>
                 <Stat label="|E_{P_U}|" value={uEdges.length} sub="Aristas en P_U" color={AU}/>
                 <Stat label="|E_{P_V}|" value={vEdges.length} sub="Aristas en P_V" color={AV}/>
@@ -677,13 +685,13 @@ export default function App(){
               <div style={{marginBottom:20}}>
                 <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
                   <div style={{width:3,height:16,background:AU,borderRadius:2}}/>
-                  <p style={{margin:0,fontSize:13,fontWeight:700}}>Backbone extraction — Proyección P_U</p>
+                  <p style={{margin:0,fontSize:13,fontWeight:700}}>Cribado heurístico — Proyección P_U</p>
                 </div>
                 <p style={{margin:"0 0 10px",fontSize:12,color:GREY,lineHeight:1.6}}>
-                  Comparación de cada arista de P_U contra el modelo nulo bipartito. Aristas con ratio bajo son candidatas a eliminarse.
+                  Comparamos cada arista de P_U con un baseline hipergeométrico simple. Esto sirve para intuición, pero no reemplaza un backbone formal basado en p-values bajo HM, SDSM o FDSM.
                 </p>
                 {uEdges.length>0
-                  ?<BackboneTable U={data.U} edges={edges} uEdges={uEdges}/>
+                  ?<BackboneTable U={data.U} edges={edges} uEdges={uEdges} otherCount={data.V.length}/>
                   :<p style={{color:"#94a3b8",fontSize:13}}>Sin aristas en P_U con la configuración actual.</p>}
               </div>
 
@@ -691,7 +699,7 @@ export default function App(){
               <div style={{padding:"13px 16px",background:APL,borderRadius:10,border:`0.5px solid ${APS}`,marginBottom:16}}>
                 <p style={{margin:"0 0 6px",fontSize:13,fontWeight:700,color:APS}}>Nestedness NODF: {nd}%</p>
                 <p style={{margin:"0 0 10px",fontSize:12,color:APS,lineHeight:1.65}}>
-                  100% = perfectamente anidado (toda fila de menor grado es subconjunto de la de mayor grado). 0% = estructura en bloques perfecta.
+                  100% = perfectamente anidado: los vecindarios de menor grado quedan contenidos en los de mayor grado. Valores bajos indican poco solapamiento ordenado, pero no identifican por sí solos una estructura en bloques.
                 </p>
                 <div style={{display:"flex",alignItems:"center",gap:8}}>
                   <span style={{fontSize:11,color:APS,minWidth:68}}>0% bloques</span>
