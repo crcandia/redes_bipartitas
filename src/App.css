@@ -95,12 +95,7 @@
 }
 
 .editorial-panel {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 28px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow);
+  padding: 0 0 6px;
 }
 
 .editorial-stack {
@@ -212,14 +207,12 @@
 .concept-ref-list,
 .concept-reading-grid {
   display: grid;
-  gap: 10px;
+  gap: 0;
 }
 
 .concept-ref-card {
-  background: var(--bg-code);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
+  border-top: 1px solid var(--border);
+  padding: 14px 0 0;
 }
 
 .concept-ref-top {
@@ -279,6 +272,8 @@
 }
 
 .concept-reading {
+  border-top: 1px solid var(--border);
+  padding-top: 18px;
   display: grid;
   gap: 14px;
 }

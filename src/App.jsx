@@ -419,7 +419,7 @@ function ProjMatrix({nodes,projEdges,colorLight,colorStroke}){
 function DegBar({nodes,degs,color,label}){
   const maxD=Math.max(...degs,1);
   return(
-    <div style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"16px 16px 12px",boxShadow:PANEL_SHADOW}}>
+    <div style={{padding:"10px 0 12px",borderTop:`1px solid ${BORDER}`}}>
       <p style={{margin:"0 0 10px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
       <div style={{display:"flex",gap:6,alignItems:"flex-end",height:72}}>
         {nodes.map((name,i)=>(
@@ -436,7 +436,7 @@ function DegBar({nodes,degs,color,label}){
 
 function Stat({label,value,sub,color}){
   return(
-    <div style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${LIGHTGREY} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"12px 12px 10px",textAlign:"center",boxShadow:PANEL_SHADOW}}>
+    <div style={{padding:"10px 0 8px",textAlign:"left",borderTop:`1px solid ${BORDER}`}}>
       <div style={{fontSize:10,color:"#94a3b8",marginBottom:4,letterSpacing:0.2}}>{sub}</div>
       <div style={{fontSize:20,fontWeight:700,fontFamily:"monospace",color:color||"#1e293b"}}>{value}</div>
       <div style={{fontSize:10,color:"#94a3b8",fontFamily:"monospace",marginTop:4}}>{label}</div>
@@ -448,7 +448,7 @@ function BackboneTable({U,edges,uEdges,otherCount}){
   const uDegs=U.map((_,i)=>edges.filter(([u])=>u===i).length);
   const baselineDen=Math.max(otherCount,1);
   return(
-    <div style={{overflowX:"auto",background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:14,padding:"8px 10px 10px",boxShadow:PANEL_SHADOW}}>
+    <div style={{overflowX:"auto"}}>
       <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
         <thead><tr>{["Arista (u₁ — u₂)","w obs","E[w] HM","ratio","Filtro"].map(h=>(
           <th key={h} style={{padding:"7px 10px",textAlign:"left",color:GREY,fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>
@@ -711,12 +711,12 @@ export default function App(){
                 <span style={{fontWeight:700}}>3.</span> Clic en arista existente para eliminar.
               </div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:24,alignItems:"start"}}>
-                <div style={{minWidth:0,background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"16px 18px 14px",boxShadow:PANEL_SHADOW}}>
+                <div style={{minWidth:0,padding:"0 0 6px"}}>
                   <p style={{margin:"0 0 10px",fontSize:12,fontWeight:700,color:GREY}}>Edición del grafo bipartito</p>
                   <BipartiteGraph U={data.U} V={data.V} edges={edges} uLabel={data.uLabel} vLabel={data.vLabel}
                     selectedU={selU} setSelectedU={setSelU} onToggleEdge={toggleEdge}/>
                 </div>
-                <div style={{minWidth:200,background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"16px 18px 14px",boxShadow:PANEL_SHADOW}}>
+                <div style={{minWidth:200,padding:"0 0 6px"}}>
                   <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>Biadjacencia B</p>
                   <BiadjMatrix U={data.U} V={data.V} edges={edges}/>
                   <div style={{marginTop:14,display:"grid",gap:5}}>
@@ -755,12 +755,12 @@ export default function App(){
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20}}>
                 {[{label:`P_U — ${data.uLabel}`,nodes:data.U,pe:uEdges,c:AU,cl:AUL,cs:AUS},
                   {label:`P_V — ${data.vLabel}`,nodes:data.V,pe:vEdges,c:AV,cl:AVL,cs:AVS}].map(({label,nodes,pe,c,cl,cs})=>(
-                  <div key={label} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:14,boxShadow:PANEL_SHADOW}}>
+                  <div key={label} style={{padding:"0 0 6px"}}>
                     <div style={{padding:"8px 12px",marginBottom:10,background:cl,borderRadius:8,borderLeft:`3.5px solid ${cs}`}}>
                       <p style={{margin:0,fontSize:13,fontWeight:700,color:cs}}>{label}</p>
                       <p style={{margin:"3px 0 0",fontSize:11,color:cs}}>{pe.length} aristas · {nodes.length} nodos</p>
                     </div>
-                    <div style={{background:LIGHTGREY,border:`1px solid ${PANEL_BORDER}`,borderRadius:12,padding:10}}>
+                    <div style={{background:LIGHTGREY,borderRadius:12,padding:10}}>
                       <ProjectionGraph nodes={nodes} projEdges={pe} color={c} colorLight={cl} colorStroke={cs} height={220}/>
                     </div>
                   </div>
@@ -769,7 +769,7 @@ export default function App(){
               <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:20,marginTop:20}}>
                 {[{label:"Matriz P_U (B·Bᵀ)",nodes:data.U,pe:uEdges,cl:AUL,cs:AUS},
                   {label:"Matriz P_V (Bᵀ·B)",nodes:data.V,pe:vEdges,cl:AVL,cs:AVS}].map(({label,nodes,pe,cl,cs})=>(
-                  <div key={label} style={{background:`linear-gradient(180deg, ${PANEL_ALT} 0%, ${PANEL} 100%)`,border:`1px solid ${PANEL_BORDER}`,borderRadius:18,padding:"14px 14px 12px",boxShadow:PANEL_SHADOW}}>
+                  <div key={label} style={{padding:"0 0 6px"}}>
                     <p style={{margin:"0 0 8px",fontSize:12,fontWeight:600,color:GREY}}>{label}</p>
                     <ProjMatrix nodes={nodes} projEdges={pe} colorLight={cl} colorStroke={cs}/>
                   </div>
