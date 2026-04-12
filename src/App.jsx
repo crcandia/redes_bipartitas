@@ -651,7 +651,7 @@ export default function App(){
             <section className="editorial-panel editorial-stack concept-story">
               <div className="concept-intro">
                 <p>
-                  Esta pestaña no busca listar definiciones sueltas. La idea es responder, de arriba hacia abajo, cuatro preguntas que suelen confundirse en clase: qué modela realmente una red bipartita, qué conserva y qué destruye una proyección, qué métricas conviene leer antes de proyectar y cuándo un peso observado necesita un modelo nulo para interpretarse.
+                  Vamos a responder, de arriba hacia abajo, cuatro preguntas que suelen confundirse en clase: qué modela realmente una red bipartita, qué conserva y qué destruye una proyección, qué métricas conviene leer antes de proyectar y cuándo un peso observado necesita un modelo nulo para interpretarse.
                 </p>
               </div>
 
