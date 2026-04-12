@@ -78,33 +78,35 @@ function BipartiteGraph({U,V,edges,uLabel,vLabel,selectedU,setSelectedU,onToggle
   const vPos=V.map((_,i)=>({x:vX,y:pad+i*(H-2*pad)/Math.max(V.length-1,1)}));
   const eSet=new Set(edges.map(([u,v])=>`${u}-${v}`));
   return(
-    <svg width={W} height={H} style={{overflow:"visible",display:"block"}}>
-      <text x={uX} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill={AUS}>{uLabel} (U)</text>
-      <text x={vX} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill={AVS}>{vLabel} (V)</text>
-      {selectedU!==null&&V.map((_,vi)=>!eSet.has(`${selectedU}-${vi}`)&&(
-        <line key={`g${vi}`} x1={uPos[selectedU].x} y1={uPos[selectedU].y} x2={vPos[vi].x} y2={vPos[vi].y}
-          stroke="#94a3b8" strokeWidth={1} strokeDasharray="5 4" opacity={0.5} style={{cursor:"pointer"}} onClick={()=>onToggleEdge(selectedU,vi)}/>
-      ))}
-      {edges.map(([u,v],i)=>(
-        <line key={i} x1={uPos[u].x} y1={uPos[u].y} x2={vPos[v].x} y2={vPos[v].y}
-          stroke={selectedU===u?AU:"#64748b"} strokeWidth={selectedU===u?2.5:1.8}
-          opacity={selectedU===null||selectedU===u?0.85:0.2} style={{cursor:"pointer"}} onClick={()=>onToggleEdge(u,v)}/>
-      ))}
-      {U.map((name,i)=>(
-        <g key={i} style={{cursor:"pointer"}} onClick={()=>setSelectedU(selectedU===i?null:i)}>
-          <circle cx={uPos[i].x} cy={uPos[i].y} r={23} fill={selectedU===i?AU:AUL} stroke={AUS} strokeWidth={selectedU===i?2.5:1.5}/>
-          <text x={uPos[i].x} y={uPos[i].y} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={600} fill={selectedU===i?"white":AUS}>{name.length>7?name.slice(0,6)+"…":name}</text>
-          <text x={uPos[i].x-32} y={uPos[i].y} textAnchor="end" dominantBaseline="central" fontSize={11} fill={GREY}>{name}</text>
-        </g>
-      ))}
-      {V.map((name,i)=>(
-        <g key={i} style={{cursor:selectedU!==null?"pointer":"default"}} onClick={()=>selectedU!==null&&onToggleEdge(selectedU,i)}>
-          <circle cx={vPos[i].x} cy={vPos[i].y} r={23} fill={AVL} stroke={AVS} strokeWidth={1.5}/>
-          <text x={vPos[i].x} y={vPos[i].y} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={600} fill={AVS}>{name.length>7?name.slice(0,6)+"…":name}</text>
-          <text x={vPos[i].x+32} y={vPos[i].y} textAnchor="start" dominantBaseline="central" fontSize={11} fill={GREY}>{name}</text>
-        </g>
-      ))}
-    </svg>
+    <div style={{width:"100%",overflowX:"auto"}}>
+      <svg viewBox={`0 0 ${W} ${H}`} width="100%" height="auto" preserveAspectRatio="xMidYMid meet" style={{overflow:"visible",display:"block",width:"100%"}}>
+        <text x={uX} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill={AUS}>{uLabel} (U)</text>
+        <text x={vX} y={20} textAnchor="middle" fontSize={12} fontWeight={600} fill={AVS}>{vLabel} (V)</text>
+        {selectedU!==null&&V.map((_,vi)=>!eSet.has(`${selectedU}-${vi}`)&&(
+          <line key={`g${vi}`} x1={uPos[selectedU].x} y1={uPos[selectedU].y} x2={vPos[vi].x} y2={vPos[vi].y}
+            stroke="#94a3b8" strokeWidth={1} strokeDasharray="5 4" opacity={0.5} style={{cursor:"pointer"}} onClick={()=>onToggleEdge(selectedU,vi)}/>
+        ))}
+        {edges.map(([u,v],i)=>(
+          <line key={i} x1={uPos[u].x} y1={uPos[u].y} x2={vPos[v].x} y2={vPos[v].y}
+            stroke={selectedU===u?AU:"#64748b"} strokeWidth={selectedU===u?2.5:1.8}
+            opacity={selectedU===null||selectedU===u?0.85:0.2} style={{cursor:"pointer"}} onClick={()=>onToggleEdge(u,v)}/>
+        ))}
+        {U.map((name,i)=>(
+          <g key={i} style={{cursor:"pointer"}} onClick={()=>setSelectedU(selectedU===i?null:i)}>
+            <circle cx={uPos[i].x} cy={uPos[i].y} r={23} fill={selectedU===i?AU:AUL} stroke={AUS} strokeWidth={selectedU===i?2.5:1.5}/>
+            <text x={uPos[i].x} y={uPos[i].y} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={600} fill={selectedU===i?"white":AUS}>{name.length>7?name.slice(0,6)+"…":name}</text>
+            <text x={uPos[i].x-32} y={uPos[i].y} textAnchor="end" dominantBaseline="central" fontSize={11} fill={GREY}>{name}</text>
+          </g>
+        ))}
+        {V.map((name,i)=>(
+          <g key={i} style={{cursor:selectedU!==null?"pointer":"default"}} onClick={()=>selectedU!==null&&onToggleEdge(selectedU,i)}>
+            <circle cx={vPos[i].x} cy={vPos[i].y} r={23} fill={AVL} stroke={AVS} strokeWidth={1.5}/>
+            <text x={vPos[i].x} y={vPos[i].y} textAnchor="middle" dominantBaseline="central" fontSize={10} fontWeight={600} fill={AVS}>{name.length>7?name.slice(0,6)+"…":name}</text>
+            <text x={vPos[i].x+32} y={vPos[i].y} textAnchor="start" dominantBaseline="central" fontSize={11} fill={GREY}>{name}</text>
+          </g>
+        ))}
+      </svg>
+    </div>
   );
 }
 
@@ -237,7 +239,7 @@ function MatrixStepperPanel({U,V,edges,mode,setMode}){
   return(
     <div>
       {/* mode buttons */}
-      <div style={{display:"flex",gap:8,marginBottom:16}}>
+      <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
         {[["U","P_U = B · Bᵀ",AU,AUL],["V","P_V = Bᵀ · B",AV,AVL]].map(([m,lbl,c,cl])=>(
           <button key={m} onClick={()=>setMode(m)} style={{padding:"7px 18px",fontSize:13,borderRadius:8,
             cursor:"pointer",border:mode===m?"none":`1px solid ${PANEL_BORDER}`,background:mode===m?c:cl,
@@ -331,7 +333,7 @@ function MatrixStepperPanel({U,V,edges,mode,setMode}){
       </div>
 
       {/* progress + nav */}
-      <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16}}>
+      <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:16,flexWrap:"wrap"}}>
         <button onClick={()=>setStep(0)} disabled={step===0} style={navBtn(step===0)}>⟪</button>
         <button onClick={()=>setStep(s=>Math.max(0,s-1))} disabled={step===0} style={navBtn(step===0)}>← Ant</button>
         <div style={{flex:1,height:5,background:BORDER,borderRadius:4,overflow:"hidden"}}>
@@ -836,20 +838,22 @@ export default function App(){
                   {label:data.vLabel,nodes:data.V,degs:vDegs,cs:AVS,cl:AVL}].map(({label,nodes,degs,cs,cl})=>(
                   <div key={label}>
                     <p style={{margin:"0 0 8px",fontSize:12,fontWeight:700,color:GREY}}>{label} — grado nodal</p>
-                    <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-                      <thead><tr>{["Nodo","k",""].map(h=><th key={h} style={{padding:"6px 10px",textAlign:"left",color:"#94a3b8",fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>)}</tr></thead>
-                      <tbody>{nodes.map((name,i)=>(
-                        <tr key={i}>
-                          <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>{name}</td>
-                          <td style={{padding:"5px 10px",textAlign:"center",borderBottom:"0.5px solid #f1f5f9"}}>
-                            <span style={{background:cl,color:cs,fontWeight:700,fontSize:11,padding:"2px 9px",borderRadius:5}}>{degs[i]}</span>
-                          </td>
-                          <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>
-                            <div style={{height:8,width:`${(degs[i]/Math.max(...degs,1))*100}%`,background:cs,borderRadius:4,opacity:.8,minWidth:4}}/>
-                          </td>
-                        </tr>
-                      ))}</tbody>
-                    </table>
+                    <div style={{overflowX:"auto"}}>
+                      <table style={{width:"100%",minWidth:280,borderCollapse:"collapse",fontSize:12}}>
+                        <thead><tr>{["Nodo","k",""].map(h=><th key={h} style={{padding:"6px 10px",textAlign:"left",color:"#94a3b8",fontWeight:500,borderBottom:`1px solid ${BORDER}`,fontSize:11}}>{h}</th>)}</tr></thead>
+                        <tbody>{nodes.map((name,i)=>(
+                          <tr key={i}>
+                            <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>{name}</td>
+                            <td style={{padding:"5px 10px",textAlign:"center",borderBottom:"0.5px solid #f1f5f9"}}>
+                              <span style={{background:cl,color:cs,fontWeight:700,fontSize:11,padding:"2px 9px",borderRadius:5}}>{degs[i]}</span>
+                            </td>
+                            <td style={{padding:"5px 10px",borderBottom:"0.5px solid #f1f5f9"}}>
+                              <div style={{height:8,width:`${(degs[i]/Math.max(...degs,1))*100}%`,background:cs,borderRadius:4,opacity:.8,minWidth:4}}/>
+                            </td>
+                          </tr>
+                        ))}</tbody>
+                      </table>
+                    </div>
                   </div>
                 ))}
               </div>

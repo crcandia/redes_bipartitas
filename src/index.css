@@ -152,7 +152,17 @@ code {
     font-size: 16px;
   }
 
+  body {
+    padding-bottom: 92px;
+  }
+
   .app-main {
     padding: 0 16px;
+  }
+
+  .site-footer {
+    padding: 10px 14px;
+    font-size: 0.76rem;
+    line-height: 1.35;
   }
 }

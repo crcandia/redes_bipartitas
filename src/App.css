@@ -66,6 +66,12 @@
   margin: 32px auto;
   max-width: 900px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.editorial-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .editorial-tab {
@@ -299,21 +305,39 @@
   }
 
   .editorial-tabs {
-    gap: 1px;
-    margin: 24px auto;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    justify-content: start;
+    gap: 6px;
+    margin: 22px -4px 20px;
+    padding: 4px;
+    border-radius: 999px;
+    scroll-snap-type: x proximity;
   }
 
   .editorial-tab {
-    font-size: 0.7rem;
-    padding: 8px 4px;
+    flex: none;
+    min-width: max-content;
+    font-size: 0.76rem;
+    padding: 9px 14px;
+    scroll-snap-align: start;
   }
 
   .editorial-panel {
-    padding: 18px;
+    padding: 0 0 6px;
   }
 
   .editorial-note-grid {
     grid-template-columns: 1fr;
+  }
+
+  .concept-formula {
+    padding: 14px 16px;
+  }
+
+  .concept-ref-link {
+    font-size: 0.74rem;
   }
 
   .concept-ref-top {
